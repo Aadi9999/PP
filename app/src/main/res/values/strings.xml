@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">Tinder</string>
+    <string name="app_name">PP</string>
+    <string name="close">Close</string>
+    <string name="open">open</string>
 </resources>

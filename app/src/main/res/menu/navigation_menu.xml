@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:theme="@style/NavigationDrawerStyle">
+
+    <item
+        android:id="@+id/matches"
+        android:icon="@drawable/footballer"
+        android:title="Matches"
+        />
+
+
+    <item
+        android:id="@+id/settings"
+        android:layout_width="match_parent"
+        android:icon="@drawable/button_style_setting"
+        android:title="Settings"
+         />
+
+
+    <item
+        android:id="@+id/log_out"
+        android:icon="@drawable/basketballer"
+        android:title="Log out"
+         />
+
+</menu>
