@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
+import android.support.v7.widget.Toolbar;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -50,11 +51,44 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     ListView listView;
     List<cards> rowItems;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
+        @Override
+    protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
+
+            dl = (DrawerLayout) findViewById(R.id.activity_main);
+            t = new ActionBarDrawerToggle(this, dl, R.string.Open, R.string.Close);
+
+            dl.addDrawerListener(t);
+            t.syncState();
+
+            nv = (NavigationView) findViewById(R.id.nv);
+            nv.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                    int id = item.getItemId();
+                    switch (id) {
+                        case R.id.matches:
+                            startActivity(new Intent(MainActivity.this, MatchesActivity.class));
+                            return true;
+
+                        case R.id.settings:
+                            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+                            return true;
+
+                        case R.id.log_out:
+                            mAuth.signOut();
+                            startActivity(new Intent(MainActivity.this, ChooseLoginRegistrationActivity.class));
+                            return true;
+
+                        default:
+                            return true;
+                    }
+
+                }
+            });
 
         usersDb = FirebaseDatabase.getInstance().getReference().child("Users");
 
@@ -201,6 +235,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onCancelled(DatabaseError databaseError) {
             }
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if(t.onOptionsItemSelected(item))
+            return true;
+
+        return super.onOptionsItemSelected(item);
     }
 
 

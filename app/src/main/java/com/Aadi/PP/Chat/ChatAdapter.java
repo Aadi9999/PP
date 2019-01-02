@@ -7,15 +7,16 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
+import com.Aadi.PP.Chat.ChatObject;
+import com.Aadi.PP.Chat.ChatViewHolders;
 import com.bumptech.glide.Glide;
 import com.Aadi.PP.R;
 
 import java.util.List;
 
-/**
- * Created by manel on 10/31/2017.
- */
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatViewHolders>{
     private List<ChatObject> chatList;
@@ -31,7 +32,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatViewHolders>{
     public ChatViewHolders onCreateViewHolder(ViewGroup parent, int viewType) {
 
         View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chat, null, false);
-        RecyclerView.LayoutParams lp = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        RecyclerView.LayoutParams lp = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         layoutView.setLayoutParams(lp);
         ChatViewHolders rcv = new ChatViewHolders(layoutView);
 
@@ -42,16 +43,30 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatViewHolders>{
     public void onBindViewHolder(ChatViewHolders holder, int position) {
         holder.mMessage.setText(chatList.get(position).getMessage());
         if(chatList.get(position).getCurrentUser()){
-            holder.mMessage.setGravity(Gravity.END);
             holder.mMessage.setTextColor(Color.parseColor("#404040"));
-            holder.mContainer.setBackgroundColor(Color.parseColor("#F4F4F4"));
+            holder.mMessage.setBackgroundResource(R.drawable.rounded_rectangle_orange);
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) holder.mMessage.getLayoutParams();
+            params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
+            params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, 0);
+            params.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
+            params.width = RelativeLayout.LayoutParams.WRAP_CONTENT;
+            holder.mMessage.setLayoutParams(params);
+
         }else{
-            holder.mMessage.setGravity(Gravity.START);
             holder.mMessage.setTextColor(Color.parseColor("#FFFFFF"));
             holder.mContainer.setBackgroundColor(Color.parseColor("#2DB4C8"));
+            holder.mContainer.setBackgroundResource(R.drawable.rounded_rectangle_blue);
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) holder.mMessage.getLayoutParams();
+            params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
+            params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, 0);
+            params.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
+            params.width = RelativeLayout.LayoutParams.WRAP_CONTENT;
+            holder.mMessage.setLayoutParams(params);
         }
 
     }
+
+
 
     @Override
     public int getItemCount() {
