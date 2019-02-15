@@ -2,30 +2,37 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingVertical="10dp"
-    android:paddingRight="15dp"
-    android:paddingLeft="20dp"
+    android:paddingVertical="4dp"
+    android:paddingRight="10dp"
+    android:paddingLeft="10dp"
     android:clipToPadding="false">
-    <LinearLayout
+
+
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/container"
         android:minWidth="30dp"
-        android:orientation="horizontal"
-        android:layout_gravity="right">
+        android:orientation="horizontal">
 
         <TextView
+            android:id="@+id/message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/message"
-            android:textColor="#0d0d0d"
-            android:padding="10dp"
-            android:elevation="2dp"
-            android:minWidth="30dp"
-            android:textSize="18dp"
+            android:layout_marginRight="6dp"
+            android:layout_marginTop="4dp"
+            android:fontFamily="@font/lato"
+            android:maxWidth="272dp"
+            android:paddingLeft="12dp"
+            android:paddingTop="10dp"
+            android:paddingRight="40dp"
+            android:paddingBottom="10dp"
             android:text="Placeholder message"
-        />
+            android:textColor="#0d0d0d"
+            android:textSize="16sp" />
 
-    </LinearLayout>
+
+
+    </RelativeLayout>
 
 </RelativeLayout>

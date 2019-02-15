@@ -1,6 +1,7 @@
 package com.Aadi.PP.Matches;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,10 +11,6 @@ import com.bumptech.glide.Glide;
 import com.Aadi.PP.R;
 
 import java.util.List;
-
-/**
- * Created by manel on 10/31/2017.
- */
 
 public class MatchesAdapter extends RecyclerView.Adapter<MatchesViewHolders>{
     private List<MatchesObject> matchesList;
@@ -36,10 +33,16 @@ public class MatchesAdapter extends RecyclerView.Adapter<MatchesViewHolders>{
         return rcv;
     }
 
+
     @Override
     public void onBindViewHolder(MatchesViewHolders holder, int position) {
         holder.mMatchId.setText(matchesList.get(position).getUserId());
+            holder.mMatchName.setText(matchesList.get(position).getName());
         holder.mMatchName.setText(matchesList.get(position).getName());
+        holder.UserLastSeen.setText(matchesList.get(position).getUserLastSeen());
+        if (matchesList.get(position).getUserLastSeen().equals("online")) {
+            holder.UserLastSeen.setTextColor(Color.parseColor("#00B424"));
+        }
         if(!matchesList.get(position).getProfileImageUrl().equals("default")){
             Glide.with(context).load(matchesList.get(position).getProfileImageUrl()).into(holder.mMatchImage);
         }
@@ -49,4 +52,6 @@ public class MatchesAdapter extends RecyclerView.Adapter<MatchesViewHolders>{
     public int getItemCount() {
         return this.matchesList.size();
     }
+
+
 }

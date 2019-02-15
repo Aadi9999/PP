@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.Aadi.PP">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -8,24 +9,47 @@
     <application
         android:largeHeap="true"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/logo"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name=".MainActivity" />
-        <activity android:name=".ChooseLoginRegistrationActivity">
+        android:theme="@style/AppTheme">
+
+        <activity android:name=".ChooseLoginRegistrationActivity"/>
+        <activity android:name=".MainActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Intro.SliderActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".RegistrationActivity" />
-        <activity android:name=".LoginActivity" />
-        <activity android:name=".SettingsActivity" />
-        <activity android:name=".Matches.MatchesActivity" />
-        <activity android:name=".Chat.ChatActivity"></activity>
+        <activity android:name=".RegistrationActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".LoginActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ProfileActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".SettingsActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Pager.PagerActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ChangeActivities.ChangeNameActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ChangeActivities.ChangePhoneActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ChangeActivities.ChangeAboutActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ForgotPasswordActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ChangeActivities.ChangeSportsActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".SportsActivity" />
+        <activity android:name=".Matches.MatchesActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Chat.ChatActivity"
+            android:screenOrientation="portrait"></activity>
 
         <meta-data
             android:name="preloaded_fonts"

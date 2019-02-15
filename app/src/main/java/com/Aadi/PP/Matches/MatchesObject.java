@@ -1,17 +1,16 @@
 package com.Aadi.PP.Matches;
 
-/**
- * Created by manel on 10/31/2017.
- */
 
 public class MatchesObject {
     private String userId;
     private String name;
     private String profileImageUrl;
-    public MatchesObject (String userId, String name, String profileImageUrl){
+    private String userState;
+    public MatchesObject (String userId, String name, String profileImageUrl, String userState){
         this.userId = userId;
         this.name = name;
         this.profileImageUrl = profileImageUrl;
+        this.userState = userState;
     }
 
     public String getUserId(){
@@ -26,6 +25,11 @@ public class MatchesObject {
     }
     public void setName(String name){
         this.name = name;
+    }
+
+    public String getUserLastSeen(){ return userState; }
+    public void setUserLastSeen(String userState){
+        this.userState = userState;
     }
 
     public String getProfileImageUrl(){

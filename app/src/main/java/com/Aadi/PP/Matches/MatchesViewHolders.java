@@ -10,21 +10,19 @@ import android.widget.TextView;
 import com.Aadi.PP.Chat.ChatActivity;
 import com.Aadi.PP.R;
 
-/**
- * Created by manel on 10/31/2017.
- */
 
 public class MatchesViewHolders extends RecyclerView.ViewHolder implements View.OnClickListener{
-    public TextView mMatchId, mMatchName;
+    public TextView mMatchId, mMatchName, UserLastSeen;
     public ImageView mMatchImage;
     public MatchesViewHolders(View itemView) {
         super(itemView);
         itemView.setOnClickListener(this);
 
-        mMatchId = (TextView) itemView.findViewById(R.id.Matchid);
-        mMatchName = (TextView) itemView.findViewById(R.id.MatchName);
+        mMatchId = itemView.findViewById(R.id.Matchid);
+        mMatchName = itemView.findViewById(R.id.MatchName);
+        UserLastSeen = itemView.findViewById(R.id.user_last_seen);
 
-        mMatchImage = (ImageView) itemView.findViewById(R.id.MatchImage);
+        mMatchImage = itemView.findViewById(R.id.MatchImage);
     }
 
     @Override

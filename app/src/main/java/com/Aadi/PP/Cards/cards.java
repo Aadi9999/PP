@@ -1,16 +1,16 @@
 package com.Aadi.PP.Cards;
 
-/**
- *
- */
+
 
 public class cards {
     private String userId;
+    private String sports;
     private String name;
     private String profileImageUrl;
-    public cards (String userId, String name, String profileImageUrl){
+    public cards (String userId, String name, String sports, String profileImageUrl){
         this.userId = userId;
         this.name = name;
+        this.sports = sports;
         this.profileImageUrl = profileImageUrl;
     }
 
@@ -26,6 +26,13 @@ public class cards {
     }
     public void setName(String name){
         this.name = name;
+    }
+
+    public String getSports(){
+        return sports;
+    }
+    public void setSports(String sports){
+        this.sports = sports;
     }
 
     public String getProfileImageUrl(){

@@ -1,5 +1,6 @@
 package com.Aadi.PP;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +12,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.Aadi.PP.Pager.PagerActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -21,6 +23,8 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import es.dmoral.toasty.Toasty;
 
 public class RegistrationActivity extends AppCompatActivity {
 
@@ -53,15 +57,16 @@ public class RegistrationActivity extends AppCompatActivity {
         };
 
 
-        mRegister = (Button) findViewById(R.id.register);
 
-        mEmail = (EditText) findViewById(R.id.email);
-        mPassword = (EditText) findViewById(R.id.password);
-        mName = (EditText) findViewById(R.id.name);
+        mRegister = findViewById(R.id.register);
 
-        mSignin = (Button) findViewById(R.id.signin);
+        mEmail = findViewById(R.id.email);
+        mPassword = findViewById(R.id.password);
+        mName = findViewById(R.id.name);
 
-        mRadioGroup = (RadioGroup) findViewById(R.id.radioGroup);
+        mSignin = findViewById(R.id.signin);
+        mRadioGroup = findViewById(R.id.radioGroup);
+
 
         mSignin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,38 +79,80 @@ public class RegistrationActivity extends AppCompatActivity {
         });
 
 
+
+
         mRegister.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("ResourceType")
             @Override
             public void onClick(View view) {
                 int selectId = mRadioGroup.getCheckedRadioButtonId();
 
-                final RadioButton radioButton = (RadioButton) findViewById(selectId);
+                final RadioButton radioButton = findViewById(selectId);
 
-                if(radioButton.getText() == null){
-                    return;
+                if (mRadioGroup.getCheckedRadioButtonId() <= 0) {
+                    Toast.makeText(RegistrationActivity.this, "Enter Gender", Toast.LENGTH_SHORT).show();
                 }
+
 
                 final String email = mEmail.getText().toString();
                 final String password = mPassword.getText().toString();
                 final String name = mName.getText().toString();
-                mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(RegistrationActivity.this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(!task.isSuccessful()){
-                            Toast.makeText(RegistrationActivity.this, "sign up error", Toast.LENGTH_SHORT).show();
-                        }else{
-                            String userId = mAuth.getCurrentUser().getUid();
-                            DatabaseReference currentUserDb = FirebaseDatabase.getInstance().getReference().child("Users").child(userId);
-                            Map userInfo = new HashMap<>();
-                            userInfo.put("name", name);
-                            userInfo.put("sex", radioButton.getText().toString());
-                            userInfo.put("profileImageUrl", "default");
-                            currentUserDb.updateChildren(userInfo);
+
+                if (name.isEmpty() || name.length() < 3) {
+                    mName.setError("Username must be at least 3 characters");
+                } else {
+                    mName.setError(null);
+                }
+
+                if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    mEmail.setError("Enter a valid email address");
+                } else {
+                    mEmail.setError(null);
+                }
+
+                if (password.isEmpty() || password.length() < 6 || password.length() > 10) {
+                    mPassword.setError("Password must be between 6 and 10 characters");
+                } else {
+                    mPassword.setError(null);
+                }
+
+
+                if (!password.isEmpty() &&  !email.isEmpty() && !name.isEmpty()){
+                    mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(RegistrationActivity.this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (!task.isSuccessful()) {
+                                Toasty.warning(RegistrationActivity.this, "Already have an account? Log in now.", Toast.LENGTH_SHORT).show();
+                            } else {
+                                String userId = mAuth.getCurrentUser().getUid();
+                                DatabaseReference currentUserDb = FirebaseDatabase.getInstance().getReference().child("Users").child(userId);
+                                Map userInfo = new HashMap<>();
+                                userInfo.put("name", name);
+                                userInfo.put("sex", radioButton.getText().toString());
+                                userInfo.put("profileImageUrl", "default");
+                                userInfo.put("sports", "Not Selected");
+                                currentUserDb.updateChildren(userInfo);
+                                Intent intent = new Intent(RegistrationActivity.this, PagerActivity.class);
+                                startActivity(intent);
+                                finish();
+                                return;
+                            }
                         }
-                    }
-                });
+                    });
+                }
+                else {
+                    Toasty.warning(RegistrationActivity.this, "Fill in required fields", Toast.LENGTH_SHORT).show();
+                }
             }
-        });
+            });
+        }
+
+
+    public final static boolean isValidEmail(CharSequence target) {
+        if (target == null)
+            return false;
+
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
     }
 
     @Override

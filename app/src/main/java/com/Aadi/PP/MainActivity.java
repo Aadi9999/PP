@@ -1,22 +1,29 @@
 package com.Aadi.PP;
 
-import android.content.ClipData;
+import android.animation.ObjectAnimator;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
 
+import com.Aadi.PP.Pager.PagerActivity;
+import com.airbnb.lottie.LottieAnimationView;
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -29,14 +36,24 @@ import com.lorentzos.flingswipe.SwipeFlingAdapterView;
 import com.Aadi.PP.Cards.arrayAdapter;
 import com.Aadi.PP.Cards.cards;
 import com.Aadi.PP.Matches.MatchesActivity;
+import com.onesignal.OneSignal;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import es.dmoral.toasty.Toasty;
+import in.arjsna.swipecardlib.SwipeCardView;
+import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private cards cards_data[];
     private com.Aadi.PP.Cards.arrayAdapter arrayAdapter;
     private int i;
+
 
     private FirebaseAuth mAuth;
 
@@ -48,6 +65,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private NavigationView nv;
 
 
+
+
     ListView listView;
     List<cards> rowItems;
 
@@ -57,101 +76,219 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
 
-            dl = (DrawerLayout) findViewById(R.id.activity_main);
-            t = new ActionBarDrawerToggle(this, dl, R.string.Open, R.string.Close);
 
-            dl.addDrawerListener(t);
-            t.syncState();
 
-            nv = (NavigationView) findViewById(R.id.nv);
-            nv.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
 
+            AHBottomNavigation bottomNavigation = findViewById(R.id.bottom_navigation);
+
+            // Managing Bottom Navigation Bar
+            AHBottomNavigationItem item1 = new AHBottomNavigationItem(R.string.Settings, R.drawable.settingsicon, R.color.colorPrimary);
+            AHBottomNavigationItem item2 = new AHBottomNavigationItem(R.string.Home, R.drawable.homeicon, R.color.colorPrimary);
+            AHBottomNavigationItem item3 = new AHBottomNavigationItem(R.string.Connects, R.drawable.usersicon, R.color.colorPrimary);
+            AHBottomNavigationItem item4 = new AHBottomNavigationItem(R.string.Logout, R.drawable.logouticon, R.color.colorPrimary);
+
+
+            // Add items
+            bottomNavigation.addItem(item1);
+            bottomNavigation.addItem(item2);
+            bottomNavigation.addItem(item3);
+            bottomNavigation.addItem(item4);
+
+            // Set background color
+            bottomNavigation.setDefaultBackgroundColor(Color.parseColor("#ffffff"));
+
+            // Disable the translation inside the CoordinatorLayout
+            bottomNavigation.setBehaviorTranslationEnabled(false);
+
+
+            // Change colors
+            bottomNavigation.setAccentColor(Color.parseColor("#6200EE"));
+
+
+            // Force to tint the drawable (useful for font with icon for example)
+            bottomNavigation.setForceTint(true);
+
+
+            bottomNavigation.setTranslucentNavigationEnabled(true);
+
+            // Manage titles
+            bottomNavigation.setTitleState(AHBottomNavigation.TitleState.ALWAYS_HIDE);
+
+
+            // Use colored navigation with circle reveal effect
+            bottomNavigation.setColored(false);
+
+            // Set current item programmatically
+            bottomNavigation.setCurrentItem(1);
+
+
+            // Set listeners
+            bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
                 @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                    int id = item.getItemId();
-                    switch (id) {
-                        case R.id.matches:
-                            startActivity(new Intent(MainActivity.this, MatchesActivity.class));
+                public boolean onTabSelected(int position, boolean wasSelected) {
+                    switch (position) {
+                        case 0:
+                        Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+                        startActivity(intent);
+                        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                        finish();
+                        return true;
+
+                        case 2:
+                            Intent inten = new Intent(MainActivity.this, MatchesActivity.class);
+                            startActivity(inten);
+                            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                            finish();
                             return true;
 
-                        case R.id.settings:
-                            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-                            return true;
+                        case 3:
 
-                        case R.id.log_out:
-                            mAuth.signOut();
-                            startActivity(new Intent(MainActivity.this, ChooseLoginRegistrationActivity.class));
-                            return true;
+                                    new AlertDialog.Builder(MainActivity.this)
+                                            .setTitle("Logout From SportConnect")
+                                            .setMessage("Would you like to Log out?")
+                                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    updateUserStatus("offline");
+                                                    Intent inte = new Intent(MainActivity.this, ChooseLoginRegistrationActivity.class);
+                                                    mAuth.signOut();
+                                                    startActivity(inte);
+                                                }
+                                            })
+                                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    dialog.dismiss();
+                                                }
+                                            })
+                                            .show();
 
-                        default:
-                            return true;
-                    }
+                                }
 
+
+                    return wasSelected;
                 }
             });
 
-        usersDb = FirebaseDatabase.getInstance().getReference().child("Users");
+            usersDb = FirebaseDatabase.getInstance().getReference().child("Users");
 
         mAuth = FirebaseAuth.getInstance();
         currentUId = mAuth.getCurrentUser().getUid();
 
-        checkUserSex();
+            Button mQuestion = findViewById(R.id.questionsign);
 
-        rowItems = new ArrayList<cards>();
+
+        checkUserSex();
+            checkFirstOpen();
+
+            final TextView emptyView = findViewById(R.id.empty_view);
+            final TextView nope = findViewById(R.id.text);
+            final TextView connect = findViewById(R.id.text2);
+
+            nope.setVisibility(View.VISIBLE);
+            ObjectAnimator fadein = ObjectAnimator.ofFloat(nope, "alpha", 0f, 1);
+            fadein.setDuration(3000);
+            fadein.start();
+
+            connect.setVisibility(View.VISIBLE);
+            ObjectAnimator fadein2 = ObjectAnimator.ofFloat(connect, "alpha", 0f, 1);
+            fadein2.setDuration(3000);
+            fadein2.start();
+
+
+            rowItems = new ArrayList<cards>();
+        final LottieAnimationView animationView = findViewById(R.id.animation_view);
 
         arrayAdapter = new arrayAdapter(this, R.layout.item, rowItems );
 
-        SwipeFlingAdapterView flingContainer = (SwipeFlingAdapterView) findViewById(R.id.frame);
-
-
-        flingContainer.setAdapter(arrayAdapter);
-        flingContainer.setFlingListener(new SwipeFlingAdapterView.onFlingListener() {
+            SwipeCardView swipeCardView = findViewById(R.id.frame);
 
 
 
-            @Override
-            public void removeFirstObjectInAdapter() {
-                Log.d("LIST", "removed object!");
-                rowItems.remove(0);
-                arrayAdapter.notifyDataSetChanged();
-            }
+        swipeCardView.setAdapter(arrayAdapter);
+            swipeCardView.setFlingListener(new SwipeCardView.OnCardFlingListener() {
 
-            @Override
-            public void onLeftCardExit(Object dataObject) {
+
+                @Override
+                public void onCardExitLeft(Object dataObject) {
 
                 cards obj = (cards) dataObject;
                 String userId = obj.getUserId();
                 usersDb.child(userId).child("connections").child("nope").child(currentUId).setValue(true);
-                Toast.makeText(MainActivity.this, "Left", Toast.LENGTH_SHORT).show();
-            }
+                Toasty.error(MainActivity.this, "Nope", Toast.LENGTH_SHORT).show();
+                    nope.setTextColor(Color.parseColor("#00B424"));
+                    connect.setTextColor(Color.parseColor("#FFFFFF"));
+                }
 
-            @Override
-            public void onRightCardExit(Object dataObject) {
+
+                @Override
+                public void onCardExitRight(Object dataObject) {
                 cards obj = (cards) dataObject;
                 String userId = obj.getUserId();
                 usersDb.child(userId).child("connections").child("yeps").child(currentUId).setValue(true);
                 isConnectionMatch(userId);
-                Toast.makeText(MainActivity.this, "Right", Toast.LENGTH_SHORT).show();
+                Toasty.success(MainActivity.this, "Connect!", Toast.LENGTH_SHORT).show();
+                    connect.setTextColor(Color.parseColor("#00B424"));
+                    nope.setTextColor(Color.parseColor("#FFFFFF"));
             }
 
             @Override
             public void onAdapterAboutToEmpty(int itemsInAdapter) {
+
             }
+
 
             @Override
             public void onScroll(float scrollProgressPercent) {
+
             }
-        });
+
+                @Override
+                public void onCardExitTop(Object dataObject) {
+
+                }
+
+                @Override
+                public void onCardExitBottom(Object dataObject) {
+
+                }
+            });
 
 
         // Optionally add an OnItemClickListener
-        flingContainer.setOnItemClickListener(new SwipeFlingAdapterView.OnItemClickListener() {
+        mQuestion.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClicked(int itemPosition, Object dataObject) {
-                Toast.makeText(MainActivity.this, "Item Clicked", Toast.LENGTH_SHORT).show();
+            public void onClick(View view) {
+                Toasty.warning(MainActivity.this, "Swipe right to connect!", Toast.LENGTH_SHORT).show();
+
+                animationView.setAnimation("swipe_left.json");
+                animationView.playAnimation();
+                animationView.loop(false);
             }
         });
 
+    }
+
+
+    private void checkFirstOpen(){
+        Boolean isFirstRun2 = getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                .getBoolean("isFirstRun2", true);
+
+        if (isFirstRun2){
+
+            new MaterialTapTargetPrompt.Builder(MainActivity.this)
+                    .setTarget(R.id.text)
+                    .setPrimaryText("Swipe left to not connect")
+                    .show();
+
+
+            new MaterialTapTargetPrompt.Builder(MainActivity.this)
+                    .setTarget(R.id.questionsign)
+                    .setPrimaryText("Click to learn more")
+                    .show();
+
+        }
+
+        getSharedPreferences("PREFERENCE", MODE_PRIVATE).edit().putBoolean("isFirstRun2",
+                false).apply();
     }
 
     private void isConnectionMatch(String userId) {
@@ -160,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()){
-                    Toast.makeText(MainActivity.this, "new Connection", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "New Connection! Head over to Connects screen and chat with user!", Toast.LENGTH_LONG).show();
 
                     String key = FirebaseDatabase.getInstance().getReference().child("Chat").push().getKey();
 
@@ -188,10 +325,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         userSex = dataSnapshot.child("sex").getValue().toString();
                         switch (userSex){
                             case "Male":
-                                oppositeUserSex = "Female";
+                                oppositeUserSex = "Male";
                                 break;
                             case "Female":
-                                oppositeUserSex = "Male";
+                                oppositeUserSex = "Female";
                                 break;
                         }
                         getOppositeSexUsers();
@@ -205,6 +342,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
+    public void updateUserStatus(String state)
+    {
+        String saveCurrentDate, saveCurrentTime;
+
+        Calendar calForDate = Calendar.getInstance();
+        SimpleDateFormat currentDate = new SimpleDateFormat("MMM dd, yyyy");
+        saveCurrentDate = currentDate.format(calForDate.getTime());
+
+        Calendar calForTime = Calendar.getInstance();
+        SimpleDateFormat currentTime = new SimpleDateFormat("hh:mm a");
+        saveCurrentTime = currentTime.format(calForTime.getTime());
+
+        Map currentStateMap = new HashMap();
+        currentStateMap.put("time",saveCurrentTime);
+        currentStateMap.put("date",saveCurrentDate);
+        currentStateMap.put("type",state);
+
+
+        usersDb.child(currentUId).child("userState")
+                .updateChildren(currentStateMap);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        updateUserStatus("online");
+    }
+
+
+
     public void getOppositeSexUsers(){
         usersDb.addChildEventListener(new ChildEventListener() {
             @Override
@@ -215,7 +383,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         if (!dataSnapshot.child("profileImageUrl").getValue().equals("default")) {
                             profileImageUrl = dataSnapshot.child("profileImageUrl").getValue().toString();
                         }
-                        cards item = new cards(dataSnapshot.getKey(), dataSnapshot.child("name").getValue().toString(), profileImageUrl);
+                        cards item = new cards(dataSnapshot.getKey(), dataSnapshot.child("name").getValue().toString(), dataSnapshot.child("sports").getValue().toString(), profileImageUrl);
                         rowItems.add(item);
                         arrayAdapter.notifyDataSetChanged();
                     }
@@ -247,25 +415,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
-    public void logoutUser(View view) {
-        mAuth.signOut();
-        Intent intent = new Intent(MainActivity.this, ChooseLoginRegistrationActivity.class);
-        startActivity(intent);
-        finish();
-        return;
-    }
-
-    public void goToSettings(View view) {
-        Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-        startActivity(intent);
-        return;
-    }
-
-    public void goToMatches(View view) {
-        Intent intent = new Intent(MainActivity.this, MatchesActivity.class);
-        startActivity(intent);
-        return;
-    }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
