@@ -4,18 +4,24 @@
     package="com.Aadi.PP">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
     <application
         android:largeHeap="true"
-        android:allowBackup="true"
+        android:allowBackup="false"
+        tools:replace="android:allowBackup"
         android:icon="@drawable/logo"
         android:label="@string/app_name"
         android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
 
-        <activity android:name=".ChooseLoginRegistrationActivity"/>
+        <activity android:name=".ChooseLoginRegistrationActivity"
+            android:screenOrientation="portrait"/>
         <activity android:name=".MainActivity"
             android:screenOrientation="portrait"/>
         <activity android:name=".Intro.SliderActivity"
@@ -43,13 +49,15 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".ForgotPasswordActivity"
             android:screenOrientation="portrait"/>
-        <activity android:name=".ChangeActivities.ChangeSportsActivity"
-            android:screenOrientation="portrait"/>
         <activity android:name=".SportsActivity" />
         <activity android:name=".Matches.MatchesActivity"
             android:screenOrientation="portrait"/>
+        <activity android:name=".RadiusActivity"
+            android:screenOrientation="portrait"/>
         <activity android:name=".Chat.ChatActivity"
-            android:screenOrientation="portrait"></activity>
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait"/>
+
 
         <meta-data
             android:name="preloaded_fonts"

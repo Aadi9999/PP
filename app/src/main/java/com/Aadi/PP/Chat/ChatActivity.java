@@ -1,19 +1,29 @@
 package com.Aadi.PP.Chat;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v4.widget.NestedScrollView;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.view.menu.MenuView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.Toolbar;
 
+import com.Aadi.PP.Cards.cards;
+import com.Aadi.PP.ChooseLoginRegistrationActivity;
 import com.Aadi.PP.LoginActivity;
+import com.Aadi.PP.MainActivity;
 import com.Aadi.PP.Matches.MatchesActivity;
 import com.Aadi.PP.RegistrationActivity;
 import com.airbnb.lottie.LottieAnimationView;
@@ -36,6 +46,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import es.dmoral.toasty.Toasty;
+
 public class ChatActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mChatAdapter;
@@ -44,10 +56,11 @@ public class ChatActivity extends AppCompatActivity {
     TextView mMatchName, userLastSeen;
 
     private CircularImageView mMatchImage;
+    private NestedScrollView mScrollview;
 
     FirebaseUser fuser;
 
-    DatabaseReference reference;
+    DatabaseReference reference, Userreport;
 
     Intent intent;
 
@@ -63,14 +76,12 @@ public class ChatActivity extends AppCompatActivity {
 
     private String currentUserID, matchId, chatId, matchName;
 
-    DatabaseReference mDatabaseUser, mDatabaseChat, usersDb, RootRef;
+    DatabaseReference mDatabaseUser, mDatabaseChat, usersDb, RootRef, mDatabaseUser1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-
-
 
         userLastSeen = findViewById(R.id.user_last_seen);
 
@@ -78,6 +89,8 @@ public class ChatActivity extends AppCompatActivity {
 
         setSupportActionBar(toolbar);
         toolbar.setNavigationIcon(R.drawable.backicon);
+
+
 
         mMatchName = findViewById(R.id.MatchName);
         mMatchImage = findViewById(R.id.MatchImage);
@@ -89,6 +102,7 @@ public class ChatActivity extends AppCompatActivity {
         matchName = getIntent().getExtras().getString("name");
         currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         mDatabaseUser = FirebaseDatabase.getInstance().getReference().child("Users").child(currentUserID).child("connections").child("matches").child(matchId).child("ChatId");
+        mDatabaseUser1 = FirebaseDatabase.getInstance().getReference().child("Users").child(currentUserID).child("connections").child("matches").child(matchId);
         mDatabaseChat = FirebaseDatabase.getInstance().getReference().child("Chat");
 
         getChatId();
@@ -98,6 +112,7 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
+        Userreport = RootRef.child("Users").child(matchId).child("Report");
         mRecyclerView = findViewById(R.id.recyclerView);
         mRecyclerView.setNestedScrollingEnabled(false);
         mRecyclerView.setHasFixedSize(false);
@@ -107,6 +122,8 @@ public class ChatActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(mChatAdapter);
 
 
+         mScrollview = findViewById(R.id.scroll_view);
+
         mSendEditText = findViewById(R.id.message);
         mSendButton = findViewById(R.id.send);
 
@@ -114,6 +131,12 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 sendMessage();
+
+                mScrollview.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mScrollview.fullScroll(ScrollView.FOCUS_DOWN);
+                    }}, 100);
             }
         });
 
@@ -121,16 +144,23 @@ public class ChatActivity extends AppCompatActivity {
         mRecyclerView.smoothScrollToPosition(mRecyclerView.getAdapter().getItemCount());
     }
 
+
+
     private void sendMessage() {
         String sendMessageText = mSendEditText.getText().toString();
-        updateUserStatus("online");
 
         if(!sendMessageText.isEmpty()){
+
             DatabaseReference newMessageDb = mDatabaseChat.push();
+
+            Calendar calForTimeStamp = Calendar.getInstance();
+            SimpleDateFormat timeStamp = new SimpleDateFormat("hh:mm a");
+            String currentTimeStamp = timeStamp.format(calForTimeStamp.getTime());
 
             Map newMessage = new HashMap();
             newMessage.put("createdByUser", currentUserID);
             newMessage.put("text", sendMessageText);
+            newMessage.put("timestamp", currentTimeStamp);
 
             newMessageDb.setValue(newMessage);
         }
@@ -167,6 +197,14 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.chat_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+
     // Check whether user is online or not
     private void DisplayUserInfo()
     {
@@ -174,6 +212,8 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onDataChange (DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()){
+
+
                     final String type = dataSnapshot.child("userState").child("type").getValue().toString();
                     final String lastDate = dataSnapshot.child("userState").child("date").getValue().toString();
                     final String lastTime = dataSnapshot.child("userState").child("time").getValue().toString();
@@ -185,6 +225,80 @@ public class ChatActivity extends AppCompatActivity {
                     else
                     {
                         userLastSeen.setText("last seen:  " + lastTime + "  " + lastDate);
+                    }
+
+                    ImageView sportsicon = findViewById(R.id.sporticon3);
+                    if (dataSnapshot.child("sports").getValue()!=null) {
+                        String sports = dataSnapshot.child("sports").getValue().toString();
+
+
+                        if (sports.equals("Badminton")) {
+                            sportsicon.setImageResource(R.drawable.badminton);
+                        }
+
+                        if (sports.equals("Basketball")) {
+                            sportsicon.setImageResource(R.drawable.basketball);
+                        }
+
+                        if (sports.equals("Football")) {
+                            sportsicon.setImageResource(R.drawable.soccer);
+                        }
+
+                        if (sports.equals("Table tennis")) {
+                            sportsicon.setImageResource(R.drawable.pingpong);
+                        }
+
+                        if (sports.equals("Exercising")) {
+                            sportsicon.setImageResource(R.drawable.gym);
+                        }
+
+                        if (sports.equals("Baseball")) {
+                            sportsicon.setImageResource(R.drawable.baseball);
+                        }
+
+                        if (sports.equals("Tennis")) {
+                            sportsicon.setImageResource(R.drawable.tennis);
+                        }
+
+                        if (sports.equals("Archery")) {
+                            sportsicon.setImageResource(R.drawable.archery);
+                        }
+
+                        if (sports.equals("Snooker")) {
+                            sportsicon.setImageResource(R.drawable.eightball);
+                        }
+
+                        if (sports.equals("Cycling")) {
+                            sportsicon.setImageResource(R.drawable.cycling);
+                        }
+
+                        if (sports.equals("Golf")) {
+                            sportsicon.setImageResource(R.drawable.golf);
+                        }
+
+                        if (sports.equals("Rugby")) {
+                            sportsicon.setImageResource(R.drawable.rugby);
+                        }
+
+                        if (sports.equals("Running")) {
+                            sportsicon.setImageResource(R.drawable.shoe);
+                        }
+
+                        if (sports.equals("American Football")) {
+                            sportsicon.setImageResource(R.drawable.americanfootball);
+                        }
+
+                        if (sports.equals("Volleyball")) {
+                            sportsicon.setImageResource(R.drawable.volleyball);
+                        }
+
+                        if (sports.equals("Cricket")) {
+                            sportsicon.setImageResource(R.drawable.cricket);
+                        }
+
+                        if (sports.equals("default")) {
+                            sportsicon.setImageResource(R.drawable.shoe);
+                        }
                     }
 
             }
@@ -222,6 +336,28 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        mScrollview.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mScrollview.fullScroll(ScrollView.FOCUS_DOWN);
+            }}, 100);
+
+        updateUserStatus("online");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        updateUserStatus("offline");
+    }
+
+
+
     private void getChatId(){
         mDatabaseUser.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -250,11 +386,56 @@ public class ChatActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent = new Intent(ChatActivity.this, MatchesActivity.class);
-        startActivity(intent);
-        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-        finish();
+
+        int id = item.getItemId();
+        switch (id){
+            case android.R.id.home:
+                Intent intent = new Intent(ChatActivity.this, MatchesActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                finish();
+                return true;
+            case R.id.Report:
+                new AlertDialog.Builder(ChatActivity.this)
+                        .setTitle("Report this contact to SportConnect?")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                Userreport.setValue("Reported");
+                                Toasty.info(ChatActivity.this, "User Reported", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .show();
+
+                return true;
+
+            case R.id.Block:
+                new AlertDialog.Builder(ChatActivity.this)
+                        .setTitle("Block this Contact?")
+                        .setMessage("Blocked contacts will be permanently removed from Connects page, and you will not be able to message them.")
+                        .setPositiveButton("Block", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                mDatabaseUser1.removeValue();
+                                Intent intent = new Intent(ChatActivity.this, MatchesActivity.class);
+                                startActivity(intent);
+                                finish();
+                                return;
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .show();
+
+        }
         return super.onOptionsItemSelected(item);
+
     }
 
     private void getChatMessages() {
@@ -262,12 +443,27 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 if(dataSnapshot.exists()){
+                    mScrollview.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mScrollview.fullScroll(ScrollView.FOCUS_DOWN);
+                        }}, 700);
+
                     String message = null;
                     String createdByUser = null;
+                    String timestamp = null;
+                    String LastSeen = null;
 
                     if(dataSnapshot.child("text").getValue()!=null){
                         message = dataSnapshot.child("text").getValue().toString();
                     }
+
+                    if(dataSnapshot.child("timestamp").getValue()!=null){
+                        timestamp = dataSnapshot.child("timestamp").getValue().toString();
+                    }
+
+
+
                     if(dataSnapshot.child("createdByUser").getValue()!=null){
                         createdByUser = dataSnapshot.child("createdByUser").getValue().toString();
                     }
@@ -277,7 +473,7 @@ public class ChatActivity extends AppCompatActivity {
                         if(createdByUser.equals(currentUserID)){
                             currentUserBoolean = true;
                         }
-                        ChatObject newMessage = new ChatObject(message, currentUserBoolean);
+                        ChatObject newMessage = new ChatObject(message, timestamp, currentUserBoolean);
                         resultsChat.add(newMessage);
                         mChatAdapter.notifyDataSetChanged();
                     }

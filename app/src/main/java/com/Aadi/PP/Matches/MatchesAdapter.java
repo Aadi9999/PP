@@ -6,15 +6,19 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.Aadi.PP.R;
+import com.github.siyamed.shapeimageview.CircularImageView;
 
 import java.util.List;
 
 public class MatchesAdapter extends RecyclerView.Adapter<MatchesViewHolders>{
     private List<MatchesObject> matchesList;
     private Context context;
+
+
 
 
     public MatchesAdapter(List<MatchesObject> matchesList, Context context){
@@ -34,12 +38,89 @@ public class MatchesAdapter extends RecyclerView.Adapter<MatchesViewHolders>{
     }
 
 
+
+
     @Override
     public void onBindViewHolder(MatchesViewHolders holder, int position) {
         holder.mMatchId.setText(matchesList.get(position).getUserId());
             holder.mMatchName.setText(matchesList.get(position).getName());
         holder.mMatchName.setText(matchesList.get(position).getName());
+
+        //Setting sport icon for Matches Activity
+        if (matchesList.get(position).getSports().equals("Basketball")) {
+            holder.mSportsicon.setImageResource(R.drawable.basketball);
+        }
+
+        if (matchesList.get(position).getSports().equals("Badminton")) {
+            holder.mSportsicon.setImageResource(R.drawable.badminton);
+        }
+
+        if (matchesList.get(position).getSports().equals("Football")) {
+            holder.mSportsicon.setImageResource(R.drawable.soccer);
+        }
+
+        if (matchesList.get(position).getSports().equals("Table Tennis")) {
+            holder.mSportsicon.setImageResource(R.drawable.pingpong);
+        }
+
+        if (matchesList.get(position).getSports().equals("Exercising")) {
+            holder.mSportsicon.setImageResource(R.drawable.gym);
+        }
+
+        if (matchesList.get(position).getSports().equals("Baseball")) {
+            holder.mSportsicon.setImageResource(R.drawable.baseball);
+        }
+
+        if (matchesList.get(position).getSports().equals("Tennis")) {
+            holder.mSportsicon.setImageResource(R.drawable.tennis);
+        }
+
+        if (matchesList.get(position).getSports().equals("Archery")) {
+            holder.mSportsicon.setImageResource(R.drawable.archery);
+        }
+
+        if (matchesList.get(position).getSports().equals("Snooker")) {
+            holder.mSportsicon.setImageResource(R.drawable.eightball);
+        }
+
+        if (matchesList.get(position).getSports().equals("Cycling")) {
+            holder.mSportsicon.setImageResource(R.drawable.cycling);
+        }
+
+        if (matchesList.get(position).getSports().equals("Golf")) {
+            holder.mSportsicon.setImageResource(R.drawable.golf);
+        }
+
+        if (matchesList.get(position).getSports().equals("Rugby")) {
+            holder.mSportsicon.setImageResource(R.drawable.rugby);
+        }
+
+        if (matchesList.get(position).getSports().equals("Running")) {
+            holder.mSportsicon.setImageResource(R.drawable.shoe);
+        }
+
+        if (matchesList.get(position).getSports().equals("American Football")) {
+            holder.mSportsicon.setImageResource(R.drawable.americanfootball);
+        }
+
+        if (matchesList.get(position).getSports().equals("Volleyball")) {
+            holder.mSportsicon.setImageResource(R.drawable.volleyball);
+        }
+
+        if (matchesList.get(position).getSports().equals("Cricket")) {
+            holder.mSportsicon.setImageResource(R.drawable.cricket);
+        }
+
+        if (matchesList.get(position).getSports().equals("default")) {
+            holder.mSportsicon.setImageResource(R.drawable.shoe);
+        }
+        //Setting sport icon for Matches Activity
+
         holder.UserLastSeen.setText(matchesList.get(position).getUserLastSeen());
+
+        if (0 == position) {
+            holder.mMatchName.setTextColor(Color.parseColor("#000000"));
+        }
         if (matchesList.get(position).getUserLastSeen().equals("online")) {
             holder.UserLastSeen.setTextColor(Color.parseColor("#00B424"));
         }

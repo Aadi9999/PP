@@ -5,12 +5,23 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Adapter;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.Aadi.PP.ChooseLoginRegistrationActivity;
@@ -18,7 +29,8 @@ import com.Aadi.PP.MainActivity;
 import com.Aadi.PP.ProfileActivity;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
-import com.choota.dev.ctimeago.TimeAgo;
+import com.bumptech.glide.Glide;
+import com.github.siyamed.shapeimageview.CircularImageView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -42,8 +54,14 @@ public class MatchesActivity extends AppCompatActivity {
     TextView UserLast;
 
     private FirebaseAuth mAuth;
-    private DatabaseReference usersDb, RootRef;
-    private String cusrrentUserID, matchId;
+    private DatabaseReference usersDb;
+    private String cusrrentUserID, matchId, userId, name, profileImageUrl, userState;
+    private TextView mInfo;
+    private DrawerLayout dl;
+    private ActionBarDrawerToggle t;
+    private NavigationView nv;
+    private DatabaseReference mUserDatabase;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,69 +69,43 @@ public class MatchesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_matches);
 
 
-        AHBottomNavigation bottomNavigation = findViewById(R.id.bottom_navigation);
+        dl = findViewById(R.id.activity_matches);
+        t = new ActionBarDrawerToggle(this, dl, R.string.Open, R.string.Close);
 
-        // Managing Bottom Navigation Bar
-        AHBottomNavigationItem item1 = new AHBottomNavigationItem(R.string.Settings, R.drawable.settingsicon, R.color.colorPrimary);
-        AHBottomNavigationItem item2 = new AHBottomNavigationItem(R.string.Home, R.drawable.homeicon, R.color.colorPrimary);
-        AHBottomNavigationItem item3 = new AHBottomNavigationItem(R.string.Connects, R.drawable.usersicon, R.color.colorPrimary);
-        AHBottomNavigationItem item4 = new AHBottomNavigationItem(R.string.Logout, R.drawable.logouticon, R.color.colorPrimary);
-
-
-        // Add items
-        bottomNavigation.addItem(item1);
-        bottomNavigation.addItem(item2);
-        bottomNavigation.addItem(item3);
-        bottomNavigation.addItem(item4);
-
-        // Set background color
-        bottomNavigation.setDefaultBackgroundColor(Color.parseColor("#ffffff"));
-
-        // Disable the translation inside the CoordinatorLayout
-        bottomNavigation.setBehaviorTranslationEnabled(false);
+        dl.addDrawerListener(t);
+        t.syncState();
+        Toolbar toolbar = findViewById(R.id.toolBar);
+        setSupportActionBar(toolbar);
+        ActionBar actionbar = getSupportActionBar();
+        actionbar.setDisplayHomeAsUpEnabled(true);
+        actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
 
-        // Change colors
-        bottomNavigation.setAccentColor(Color.parseColor("#6200EE"));
-
-
-        // Force to tint the drawable (useful for font with icon for example)
-        bottomNavigation.setForceTint(true);
-
-
-        bottomNavigation.setTranslucentNavigationEnabled(true);
-
-        // Manage titles
-        bottomNavigation.setTitleState(AHBottomNavigation.TitleState.ALWAYS_HIDE);
-
-
-        // Use colored navigation with circle reveal effect
-        bottomNavigation.setColored(false);
-
-        // Set current item programmatically
-        bottomNavigation.setCurrentItem(2);
-
-
-        // Set listeners
-        bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
+        nv = findViewById(R.id.nv);
+        nv.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public boolean onTabSelected(int position, boolean wasSelected) {
-                switch (position) {
-                    case 0:
-                        Intent intent = new Intent(MatchesActivity.this, ProfileActivity.class);
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int id = item.getItemId();
+                switch (id) {
+                    case R.id.matches:
+                        Intent intent = new Intent(MatchesActivity.this, MatchesActivity.class);
                         startActivity(intent);
-                        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
                         finish();
                         return true;
-
-                    case 1:
-                        Intent inten = new Intent(MatchesActivity.this, MainActivity.class);
-                        startActivity(inten);
-                        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                    case R.id.settings:
+                        Intent intent2 = new Intent(MatchesActivity.this, ProfileActivity.class);
+                        startActivity(intent2);
                         finish();
                         return true;
-
-                    case 3:
+                    case R.id.browse:
+                        Intent intent3 = new Intent(MatchesActivity.this, MainActivity.class);
+                        startActivity(intent3);
+                        finish();
+                        return true;
+                    case android.R.id.home:
+                        dl.openDrawer(GravityCompat.START);
+                        return true;
+                    case R.id.log_out:
                         new AlertDialog.Builder(MatchesActivity.this)
                                 .setTitle("Logout From SportConnect")
                                 .setMessage("Would you like to Log out?")
@@ -121,7 +113,6 @@ public class MatchesActivity extends AppCompatActivity {
                                     public void onClick(DialogInterface dialog, int which) {
                                         Intent inte = new Intent(MatchesActivity.this, ChooseLoginRegistrationActivity.class);
                                         mAuth.signOut();
-                                        OneSignal.setSubscription(false);
                                         startActivity(inte);
                                     }
                                 })
@@ -131,20 +122,25 @@ public class MatchesActivity extends AppCompatActivity {
                                     }
                                 })
                                 .show();
+
                 }
-                return wasSelected;
+
+                return true;
+
+
             }
         });
-
         cusrrentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         mAuth = FirebaseAuth.getInstance();
         usersDb = FirebaseDatabase.getInstance().getReference().child("Users");
 
-        TimeAgo timeAgo = new TimeAgo();
 
 
+        ShowHeaderInfo();
+        mInfo = findViewById(R.id.info);
 
         UserLast = findViewById(R.id.user_last_seen);
+
 
         mRecyclerView = findViewById(R.id.recyclerView);
         mRecyclerView.setNestedScrollingEnabled(false);
@@ -155,22 +151,16 @@ public class MatchesActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(mMatchesAdapter);
 
         getUserMatchId();
-
-        TextView emptyView = findViewById(R.id.empty_view);
-
-        if (mMatchesLayoutManager.getItemCount() == 0) {
-            mRecyclerView.setVisibility(View.VISIBLE);
-            emptyView.setVisibility(View.GONE);
-        }
-        else {
-            mRecyclerView.setVisibility(View.GONE);
-            emptyView.setVisibility(View.VISIBLE);
-        }
-
-
     }
 
+
+
+
+
+
     private void getUserMatchId() {
+
+
 
         DatabaseReference matchDb = FirebaseDatabase.getInstance().getReference().child("Users").child(cusrrentUserID).child("connections").child("matches");
         matchDb.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -181,6 +171,12 @@ public class MatchesActivity extends AppCompatActivity {
                         FetchMatchInformation(match.getKey());
                     }
                 }
+                else {
+                    LinearLayout emptyView = findViewById(R.id.empty_view);
+
+                    emptyView.setVisibility(View.VISIBLE);
+                    mRecyclerView.setVisibility(View.GONE);
+                }
             }
 
             @Override
@@ -188,6 +184,7 @@ public class MatchesActivity extends AppCompatActivity {
             }
         });
     }
+
 
 
 
@@ -210,28 +207,76 @@ public class MatchesActivity extends AppCompatActivity {
 
         usersDb.child(cusrrentUserID).child("userState")
                 .updateChildren(currentStateMap);
+
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onResume() {
+        super.onResume();
 
         updateUserStatus("online");
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onPause() {
+        super.onPause();
 
         updateUserStatus("offline");
     }
+
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    public boolean onOptionsItemSelected(MenuItem item) {
 
-        updateUserStatus("offline");
+        if(t.onOptionsItemSelected(item))
+            return true;
+
+        return super.onOptionsItemSelected(item);
     }
+
+    private void ShowHeaderInfo(){
+        DatabaseReference userDb = FirebaseDatabase.getInstance().getReference().child("Users").child(cusrrentUserID);
+        userDb.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists() && dataSnapshot.getChildrenCount()>0){
+                    Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
+                    if(map.get("name")!=null){
+                        name = map.get("name").toString();
+
+                        View header = nv.getHeaderView(0);
+
+                        ImageView img = header.findViewById(R.id.img);
+                        TextView nam = header.findViewById(R.id.nam);
+
+                        nam.setText(name);
+                    }
+
+                    View header = nv.getHeaderView(0);
+                    ImageView img = header.findViewById(R.id.img);
+                    Glide.clear(img);
+                    if(map.get("profileImageUrl")!=null){
+                        profileImageUrl = map.get("profileImageUrl").toString();
+                        switch(profileImageUrl){
+                            case "default":
+                                Glide.with(getApplication()).load(R.drawable.profilepic).into(img);
+                                break;
+                            default:
+                                Glide.with(getApplication()).load(profileImageUrl).into(img);
+                                break;
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
 
 
 
@@ -246,8 +291,12 @@ public class MatchesActivity extends AppCompatActivity {
                     String name = "";
                     String userState = "";
                     String profileImageUrl = "";
+                    String sports = null;
                     if(dataSnapshot.child("name").getValue()!=null){
                         name = dataSnapshot.child("name").getValue().toString();
+                    }
+                    if(dataSnapshot.child("sports").getValue()!=null){
+                        sports = dataSnapshot.child("sports").getValue().toString();
                     }
                     if(dataSnapshot.child("userState").getValue()!=null){
                         final String type = dataSnapshot.child("userState").child("type").getValue().toString();
@@ -257,6 +306,8 @@ public class MatchesActivity extends AppCompatActivity {
                         if (type.equals("online"))
                         {
                             userState = ("online");
+
+
                         }
                         else
                         {
@@ -268,7 +319,7 @@ public class MatchesActivity extends AppCompatActivity {
                     }
 
 
-                    MatchesObject obj = new MatchesObject(userId, name, profileImageUrl, userState);
+                    MatchesObject obj = new MatchesObject(userId, name, profileImageUrl, userState, sports);
                     resultsMatches.add(obj);
                     mMatchesAdapter.notifyDataSetChanged();
                 }

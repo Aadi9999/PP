@@ -47,9 +47,9 @@
     <string name="pref_title_notifications">Notifications</string>
     <string name="summary_choose_ringtone">Choose notification sound</string>
     <string name="pref_header_about">About</string>
-    <string name="summary_about">Created by someone who loves who loves playing sports and developing apps!</string>
+    <string name="summary_about">Created to help you find people who enjoy the same sports as you. So you can chat about, and play the sports you love!</string>
     <string name="app_version">1.0</string>
-    <string name="summary_support">Got any queries? We are happy to help!</string>
+    <string name="summary_support">As Sportconnect is still in Beta, we would love to hear from you on the things we can improve on. Thanks alot!</string>
     <string name="title_send_feedback">Send Feedback</string>
     <string name="title_faq"></string>
     <string name="summary_faq"></string>

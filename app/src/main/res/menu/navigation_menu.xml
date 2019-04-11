@@ -4,8 +4,15 @@
     android:theme="@style/NavigationDrawerStyle">
 
     <item
+        android:id="@+id/browse"
+        android:icon="@drawable/homeicon"
+        android:title="Browse"
+        />
+
+
+    <item
         android:id="@+id/matches"
-        android:icon="@drawable/footballer"
+        android:icon="@drawable/usersicon"
         android:title="Matches"
         />
 
@@ -13,14 +20,13 @@
     <item
         android:id="@+id/settings"
         android:layout_width="match_parent"
-        android:icon="@drawable/button_style_setting"
+        android:icon="@drawable/settingsicon"
         android:title="Settings"
          />
 
-
     <item
         android:id="@+id/log_out"
-        android:icon="@drawable/basketballer"
+        android:icon="@drawable/logouticon"
         android:title="Log out"
          />
 

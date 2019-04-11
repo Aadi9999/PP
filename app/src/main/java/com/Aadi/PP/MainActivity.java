@@ -1,29 +1,57 @@
 package com.Aadi.PP;
 
+import android.Manifest;
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Typeface;
+import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
 
+import com.Aadi.PP.Chat.ChatActivity;
+import com.Aadi.PP.Intro.SliderActivity;
+import com.Aadi.PP.Pager.CardItem;
 import com.Aadi.PP.Pager.PagerActivity;
 import com.airbnb.lottie.LottieAnimationView;
+import com.anthonycr.grant.PermissionsManager;
+import com.anthonycr.grant.PermissionsResultAction;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
+import com.bumptech.glide.Glide;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -37,6 +65,13 @@ import com.Aadi.PP.Cards.arrayAdapter;
 import com.Aadi.PP.Cards.cards;
 import com.Aadi.PP.Matches.MatchesActivity;
 import com.onesignal.OneSignal;
+import com.sdsmdg.harjot.crollerTest.Croller;
+import com.shashank.sony.fancydialoglib.Animation;
+import com.shashank.sony.fancydialoglib.FancyAlertDialog;
+import com.shashank.sony.fancydialoglib.FancyAlertDialogListener;
+import com.shashank.sony.fancydialoglib.Icon;
+import com.tbruyelle.rxpermissions2.RxPermissions;
+
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -46,25 +81,27 @@ import java.util.List;
 import java.util.Map;
 
 import es.dmoral.toasty.Toasty;
+import im.delight.android.location.SimpleLocation;
 import in.arjsna.swipecardlib.SwipeCardView;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
     private cards cards_data[];
     private com.Aadi.PP.Cards.arrayAdapter arrayAdapter;
-    private int i;
+    private int retval;
 
-
+    private SimpleLocation location;
     private FirebaseAuth mAuth;
 
-    private String currentUId;
+    private String currentUId, name, profileImageUrl, userId, longitude2, latitude2, name2;
 
+    private Double lat2, radius;
+    private Double long2, distance;
     private DatabaseReference usersDb;
     private DrawerLayout dl;
     private ActionBarDrawerToggle t;
     private NavigationView nv;
-
-
+    private DatabaseReference mUserDatabase;
 
 
     ListView listView;
@@ -79,132 +116,130 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
 
-            AHBottomNavigation bottomNavigation = findViewById(R.id.bottom_navigation);
+            dl = findViewById(R.id.activity_main);
+            t = new ActionBarDrawerToggle(this, dl,R.string.Open, R.string.Close);
 
-            // Managing Bottom Navigation Bar
-            AHBottomNavigationItem item1 = new AHBottomNavigationItem(R.string.Settings, R.drawable.settingsicon, R.color.colorPrimary);
-            AHBottomNavigationItem item2 = new AHBottomNavigationItem(R.string.Home, R.drawable.homeicon, R.color.colorPrimary);
-            AHBottomNavigationItem item3 = new AHBottomNavigationItem(R.string.Connects, R.drawable.usersicon, R.color.colorPrimary);
-            AHBottomNavigationItem item4 = new AHBottomNavigationItem(R.string.Logout, R.drawable.logouticon, R.color.colorPrimary);
-
-
-            // Add items
-            bottomNavigation.addItem(item1);
-            bottomNavigation.addItem(item2);
-            bottomNavigation.addItem(item3);
-            bottomNavigation.addItem(item4);
-
-            // Set background color
-            bottomNavigation.setDefaultBackgroundColor(Color.parseColor("#ffffff"));
-
-            // Disable the translation inside the CoordinatorLayout
-            bottomNavigation.setBehaviorTranslationEnabled(false);
+            dl.addDrawerListener(t);
+            t.syncState();
+            Toolbar toolbar = findViewById(R.id.toolBar);
+            setSupportActionBar(toolbar);
+            ActionBar actionbar = getSupportActionBar();
+            actionbar.setDisplayHomeAsUpEnabled(true);
+            actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
 
-            // Change colors
-            bottomNavigation.setAccentColor(Color.parseColor("#6200EE"));
-
-
-            // Force to tint the drawable (useful for font with icon for example)
-            bottomNavigation.setForceTint(true);
-
-
-            bottomNavigation.setTranslucentNavigationEnabled(true);
-
-            // Manage titles
-            bottomNavigation.setTitleState(AHBottomNavigation.TitleState.ALWAYS_HIDE);
-
-
-            // Use colored navigation with circle reveal effect
-            bottomNavigation.setColored(false);
-
-            // Set current item programmatically
-            bottomNavigation.setCurrentItem(1);
-
-
-            // Set listeners
-            bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
+            nv = findViewById(R.id.nv);
+            nv.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
                 @Override
-                public boolean onTabSelected(int position, boolean wasSelected) {
-                    switch (position) {
-                        case 0:
-                        Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
-                        startActivity(intent);
-                        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-                        finish();
-                        return true;
-
-                        case 2:
-                            Intent inten = new Intent(MainActivity.this, MatchesActivity.class);
-                            startActivity(inten);
-                            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                    int id = item.getItemId();
+                    switch(id)
+                    {
+                        case R.id.matches:
+                            Intent intent = new Intent(MainActivity.this, MatchesActivity.class);
+                            startActivity(intent);
                             finish();
                             return true;
+                        case R.id.settings:
+                            Intent intent2 = new Intent(MainActivity.this, ProfileActivity.class);
+                            startActivity(intent2);
+                            finish();
+                            return true;
+                        case R.id.browse:
+                            Intent intent3 = new Intent(MainActivity.this, MainActivity.class);
+                            startActivity(intent3);
+                            finish();
+                            return true;
+                        case android.R.id.home:
+                            dl.openDrawer(GravityCompat.START);
+                            return true;
 
-                        case 3:
+                        case R.id.log_out:
+                            new AlertDialog.Builder(MainActivity.this)
+                                    .setTitle("Logout From SportConnect")
+                                    .setMessage("Would you like to Log out?")
+                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            updateUserStatus("offline");
+                                            Intent inte = new Intent(MainActivity.this, ChooseLoginRegistrationActivity.class);
+                                            mAuth.signOut();
+                                            startActivity(inte);
+                                        }
+                                    })
+                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                        }
+                                    })
+                                    .show();
 
-                                    new AlertDialog.Builder(MainActivity.this)
-                                            .setTitle("Logout From SportConnect")
-                                            .setMessage("Would you like to Log out?")
-                                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                                public void onClick(DialogInterface dialog, int which) {
-                                                    updateUserStatus("offline");
-                                                    Intent inte = new Intent(MainActivity.this, ChooseLoginRegistrationActivity.class);
-                                                    mAuth.signOut();
-                                                    startActivity(inte);
-                                                }
-                                            })
-                                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                                public void onClick(DialogInterface dialog, int which) {
-                                                    dialog.dismiss();
-                                                }
-                                            })
-                                            .show();
+                    }
 
-                                }
+                    return true;
 
 
-                    return wasSelected;
                 }
             });
 
-            usersDb = FirebaseDatabase.getInstance().getReference().child("Users");
+
+        usersDb = FirebaseDatabase.getInstance().getReference().child("Users");
+
 
         mAuth = FirebaseAuth.getInstance();
-        currentUId = mAuth.getCurrentUser().getUid();
+        currentUId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-            Button mQuestion = findViewById(R.id.questionsign);
+        Button mQuestion = findViewById(R.id.questionsign);
 
-
+        ShowHeaderInfo();
         checkUserSex();
-            checkFirstOpen();
+        checkFirstOpen();
 
-            final TextView emptyView = findViewById(R.id.empty_view);
-            final TextView nope = findViewById(R.id.text);
-            final TextView connect = findViewById(R.id.text2);
-
-            nope.setVisibility(View.VISIBLE);
-            ObjectAnimator fadein = ObjectAnimator.ofFloat(nope, "alpha", 0f, 1);
-            fadein.setDuration(3000);
-            fadein.start();
-
-            connect.setVisibility(View.VISIBLE);
-            ObjectAnimator fadein2 = ObjectAnimator.ofFloat(connect, "alpha", 0f, 1);
-            fadein2.setDuration(3000);
-            fadein2.start();
+        final TextView emptyView = findViewById(R.id.empty_view);
 
 
-            rowItems = new ArrayList<cards>();
+        rowItems = new ArrayList<cards>();
         final LottieAnimationView animationView = findViewById(R.id.animation_view);
 
         arrayAdapter = new arrayAdapter(this, R.layout.item, rowItems );
 
-            SwipeCardView swipeCardView = findViewById(R.id.frame);
+            final SwipeCardView swipeCardView = findViewById(R.id.frame);
 
 
+            PermissionsManager.getInstance().requestPermissionsIfNecessaryForResult(this,
+                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, new PermissionsResultAction() {
+                        @Override
+                        public void onGranted() {
+
+                            location = new SimpleLocation(MainActivity.this);
+
+                            final double latitude1 = location.getLatitude();
+                            final double longitude1 = location.getLongitude();
+
+                            Map currentLocationMap = new HashMap();
+                            currentLocationMap.put("latitude",latitude1);
+                            currentLocationMap.put("longitude",longitude1);
+
+
+                            usersDb.child(currentUId).child("location")
+                                    .updateChildren(currentLocationMap);
+
+
+                        }
+
+                        @Override
+                        public void onDenied(String permission) {
+
+                            Toast.makeText(MainActivity.this,
+                                    "Sorry, we need the Storage Permission to do that",
+                                    Toast.LENGTH_SHORT).show();
+
+                        }
+                    });
 
         swipeCardView.setAdapter(arrayAdapter);
+
             swipeCardView.setFlingListener(new SwipeCardView.OnCardFlingListener() {
+
 
 
                 @Override
@@ -214,8 +249,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 String userId = obj.getUserId();
                 usersDb.child(userId).child("connections").child("nope").child(currentUId).setValue(true);
                 Toasty.error(MainActivity.this, "Nope", Toast.LENGTH_SHORT).show();
-                    nope.setTextColor(Color.parseColor("#00B424"));
-                    connect.setTextColor(Color.parseColor("#FFFFFF"));
+
                 }
 
 
@@ -226,12 +260,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 usersDb.child(userId).child("connections").child("yeps").child(currentUId).setValue(true);
                 isConnectionMatch(userId);
                 Toasty.success(MainActivity.this, "Connect!", Toast.LENGTH_SHORT).show();
-                    connect.setTextColor(Color.parseColor("#00B424"));
-                    nope.setTextColor(Color.parseColor("#FFFFFF"));
             }
 
             @Override
             public void onAdapterAboutToEmpty(int itemsInAdapter) {
+
 
             }
 
@@ -268,27 +301,115 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
-    private void checkFirstOpen(){
-        Boolean isFirstRun2 = getSharedPreferences("PREFERENCE", MODE_PRIVATE)
-                .getBoolean("isFirstRun2", true);
+    private void ShowHeaderInfo(){
+        DatabaseReference userDb = FirebaseDatabase.getInstance().getReference().child("Users").child(currentUId);
+        userDb.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists() && dataSnapshot.getChildrenCount()>0){
+                    Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
+                    if(map.get("name")!=null){
+                        name = map.get("name").toString();
 
-        if (isFirstRun2){
-
-            new MaterialTapTargetPrompt.Builder(MainActivity.this)
-                    .setTarget(R.id.text)
-                    .setPrimaryText("Swipe left to not connect")
-                    .show();
+                        View header = nv.getHeaderView(0);
+                        TextView nam = header.findViewById(R.id.nam);
+                        nam.setText(name);
+                    }
 
 
+                    View header = nv.getHeaderView(0);
+                    ImageView img = header.findViewById(R.id.img);
+                    Glide.clear(img);
+                    if(map.get("profileImageUrl")!=null){
+                        profileImageUrl = map.get("profileImageUrl").toString();
+                        switch(profileImageUrl){
+                            case "default":
+                                Glide.with(getApplication()).load(R.drawable.profilepic).into(img);
+                                break;
+                            default:
+                                Glide.with(getApplication()).load(profileImageUrl).into(img);
+                                break;
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.home_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+        switch (id){
+            case R.id.Proximity:
+                Intent intent2 = new Intent(MainActivity.this, RadiusActivity.class);
+                startActivity(intent2);
+                finish();
+                return true;
+
+        }
+
+        if(t.onOptionsItemSelected(item))
+            return true;
+
+        return super.onOptionsItemSelected(item);
+
+    }
+
+
+    private void checkFirstOpen() {
+
+        final String PREFS_NAME = "MyPrefsFile";
+        final String PREF_VERSION_CODE_KEY = "version_code";
+        final int DOESNT_EXIST = -1;
+
+        // Get current version code
+        int currentVersionCode = BuildConfig.VERSION_CODE;
+
+        // Get saved version code
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        int savedVersionCode = prefs.getInt(PREF_VERSION_CODE_KEY, DOESNT_EXIST);
+
+        // Check for first run or upgrade
+        if (currentVersionCode == savedVersionCode) {
+
+
+
+        } else if (savedVersionCode == DOESNT_EXIST) {
+
+            // TODO This is a new install (or the user cleared the shared preferences)
             new MaterialTapTargetPrompt.Builder(MainActivity.this)
                     .setTarget(R.id.questionsign)
                     .setPrimaryText("Click to learn more")
                     .show();
+            return;
 
+        } else if (currentVersionCode > savedVersionCode) {
+
+            // TODO This is an upgrade
+            new MaterialTapTargetPrompt.Builder(MainActivity.this)
+                    .setTarget(R.id.questionsign)
+                    .setPrimaryText("Click to learn more")
+                    .show();
+            return;
         }
 
-        getSharedPreferences("PREFERENCE", MODE_PRIVATE).edit().putBoolean("isFirstRun2",
-                false).apply();
+
+        // Update the shared preferences with the current version code
+        prefs.edit().putInt(PREF_VERSION_CODE_KEY, currentVersionCode).apply();
     }
 
     private void isConnectionMatch(String userId) {
@@ -297,13 +418,42 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()){
-                    Toast.makeText(MainActivity.this, "New Connection! Head over to Connects screen and chat with user!", Toast.LENGTH_LONG).show();
+
+                    new FancyAlertDialog.Builder(MainActivity.this)
+                            .setTitle("New Connection!")
+                            .setBackgroundColor(Color.parseColor("#6200EE"))  //Don't pass R.color.colorvalue
+                            .setMessage("Head over to Connects screen and chat with user!")
+                            .setNegativeBtnText("BROWSE")
+                            .setPositiveBtnBackground(Color.parseColor("#6200EE"))
+                            .setPositiveBtnText("MESSAGE")
+                            .setNegativeBtnBackground(Color.parseColor("#009DEE"))  //Don't pass R.color.colorvalue
+                            .setAnimation(Animation.POP)
+                            .isCancellable(true)
+                            .setIcon(R.drawable.ic_star_border_black_24dp,Icon.Visible)
+                            .OnPositiveClicked(new FancyAlertDialogListener() {
+                                @Override
+                                public void OnClick() {
+                                    Intent intent = new Intent(MainActivity.this, MatchesActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                    return;
+                                }
+                            })
+                            .OnNegativeClicked(new FancyAlertDialogListener() {
+                                @Override
+                                public void OnClick() {
+
+
+                                }
+                            })
+                            .build();
 
                     String key = FirebaseDatabase.getInstance().getReference().child("Chat").push().getKey();
 
                     usersDb.child(dataSnapshot.getKey()).child("connections").child("matches").child(currentUId).child("ChatId").setValue(key);
                     usersDb.child(currentUId).child("connections").child("matches").child(dataSnapshot.getKey()).child("ChatId").setValue(key);
                 }
+
             }
 
             @Override
@@ -333,7 +483,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         }
                         getOppositeSexUsers();
                     }
+
                 }
+
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -365,11 +517,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-
+    protected void onResume() {
+        super.onResume();
+        location.beginUpdates();
         updateUserStatus("online");
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        updateUserStatus("offline");
+
+    }
+
+
+
 
 
 
@@ -377,15 +540,48 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         usersDb.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                if (dataSnapshot.child("sex").getValue() != null) {
-                    if (dataSnapshot.exists() && !dataSnapshot.child("connections").child("nope").hasChild(currentUId) && !dataSnapshot.child("connections").child("yeps").hasChild(currentUId) && dataSnapshot.child("sex").getValue().toString().equals(oppositeUserSex)) {
+                if (dataSnapshot.child("sex").getValue() != null  && retval == 0){
+                    if (dataSnapshot.exists() && !dataSnapshot.child("connections").child("nope").hasChild(currentUId) && !dataSnapshot.child("connections").child("yeps").hasChild(currentUId) && dataSnapshot.child("sex").getValue().toString().equals(oppositeUserSex)){
                         String profileImageUrl = "default";
                         if (!dataSnapshot.child("profileImageUrl").getValue().equals("default")) {
                             profileImageUrl = dataSnapshot.child("profileImageUrl").getValue().toString();
                         }
-                        cards item = new cards(dataSnapshot.getKey(), dataSnapshot.child("name").getValue().toString(), dataSnapshot.child("sports").getValue().toString(), profileImageUrl);
+
+                        if(dataSnapshot.child("Radius").child("Radius").getValue()!=null) {
+                            String rad = dataSnapshot.child("Radius").child("Radius").getValue().toString();
+                            radius = Double.valueOf(rad);
+
+                        }
+
+                        if(dataSnapshot.child("location").getValue()!=null){
+                            longitude2 = dataSnapshot.child("location").child("longitude").getValue().toString();
+                            latitude2 = dataSnapshot.child("location").child("latitude").getValue().toString();
+                            long2 = Double.valueOf(longitude2);
+                            lat2 = Double.valueOf(latitude2);
+
+                            location = new SimpleLocation(MainActivity.this);
+
+                            final double latitude1 = location.getLatitude();
+                            final double longitude1 = location.getLongitude();
+
+                            double startLatitude = Double.valueOf(latitude1);
+                            double startLongitude = Double.valueOf(longitude1);
+                            double endLatitude = lat2;
+                            double endLongitude = long2;
+                            distance = SimpleLocation.calculateDistance(startLatitude, startLongitude, endLatitude, endLongitude);
+
+
+                            if (Double.compare(radius, distance) == 0) {
+
+                            }
+
+
+                        }
+                        cards item = new cards(dataSnapshot.getKey(), dataSnapshot.child("name").getValue().toString(), dataSnapshot.child("sports").getValue().toString(), longitude2, latitude2, profileImageUrl);
                         rowItems.add(item);
                         arrayAdapter.notifyDataSetChanged();
+
+
                     }
                 }
             }
@@ -405,14 +601,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
 
-        if(t.onOptionsItemSelected(item))
-            return true;
-
-        return super.onOptionsItemSelected(item);
-    }
 
 
 

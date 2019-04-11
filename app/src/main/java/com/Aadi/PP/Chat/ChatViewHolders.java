@@ -14,12 +14,14 @@ import com.Aadi.PP.R;
 
 public class ChatViewHolders extends RecyclerView.ViewHolder implements View.OnClickListener{
     public TextView mMessage;
+    public TextView mTimestamp;
     public RelativeLayout mContainer;
     public ChatViewHolders(View itemView) {
         super(itemView);
         itemView.setOnClickListener(this);
 
         mMessage = itemView.findViewById(R.id.message);
+        mTimestamp = itemView.findViewById(R.id.timestamp);
         mContainer = itemView.findViewById(R.id.container);
 
     }

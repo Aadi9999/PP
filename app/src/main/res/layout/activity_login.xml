@@ -44,12 +44,13 @@
                 android:layout_marginEnd="87dp"
                 android:fontFamily="@font/lato"
                 android:layout_marginTop="115dp"
-                android:layout_marginBottom="65dp"
+                android:layout_marginBottom="35dp"
                 android:text="Login"
                 android:textColor="#ffff"
                 android:textSize="40sp"
                 android:textStyle="bold"
                 app:srcCompat="@drawable/account" />
+
 
             <TextView
                 android:id="@+id/textView3"
@@ -118,6 +119,16 @@
                 android:text="Forgot your password?"
                 android:textAllCaps="false"
                 android:textColor="#ffff" />
+
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="20dp"
+                android:startColor="#fff"
+                android:layout_height="20dp"
+                android:layout_gravity="center|bottom"
+                android:layout_marginBottom="20dp"
+                android:visibility="gone" />
 
 
             <LinearLayout

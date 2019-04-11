@@ -10,6 +10,14 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="NavigationView" >
+        <item name="fontFamily">@font/lato_light</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">#383838</item>
+
+    </style>
+
+
     <style name="AppTheme.Settings" parent="AppTheme">
         <item name="windowNoTitle">false</item>
         <item name="windowActionBar">true</item>
@@ -17,6 +25,22 @@
 
     <style name="NavigationDrawerStyle">
         <item name="android:textSize">40sp</item>
+    </style>
+
+    <style name="FullScreenDialogStyle" parent="Theme.AppCompat.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+
+        <!-- Set this to true if you want Full Screen without status bar -->
+        <item name="android:windowFullscreen">false</item>
+
+        <item name="android:windowIsFloating">false</item>
+
+        <!-- This is important! Don't forget to set window background -->
+        <item name="android:windowBackground">@color/graylight</item>
+
+
     </style>
 
 </resources>

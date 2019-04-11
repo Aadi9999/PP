@@ -11,50 +11,75 @@
         android:id="@+id/cardView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:cardBackgroundColor="#fff"
-        android:layout_marginLeft="50sp"
-        android:layout_marginRight="50sp"
-        android:layout_marginTop="140sp"
-        android:layout_marginBottom="140sp"
-        app:cardCornerRadius="15dp"
+        android:layout_marginLeft="40sp"
+        android:layout_marginRight="40sp"
+        android:layout_marginTop="90sp"
+        android:layout_marginBottom="130sp"
+        app:cardCornerRadius="20dp"
         android:layout_gravity="center"
         android:elevation="2dp">
-
 
 
         <ImageView
             android:id="@+id/image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="20dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginBottom="90dp"
             android:layout_gravity="center_horizontal"
             android:scaleType="centerCrop" />
 
-        <ImageView
-            android:id="@+id/sporticon"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_marginBottom="20dp"
-            android:layout_marginRight="60dp"
-            android:layout_gravity="bottom|right"
-            android:scaleType="fitCenter" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_gravity="bottom"
+            android:layout_height="80dp"
+            android:background="@drawable/gradient"/>
+
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
         <TextView
             android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginRight="40dp"
+            android:layout_gravity="bottom|center"
+            android:gravity="start|center"
             android:textStyle="bold"
-            android:background="#ffff"
-            android:layout_marginTop="100dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginBottom="10dp"
             android:fontFamily="@font/lato"
-            android:textColor="@android:color/black"
+            android:textColor="#fff"
             android:textSize="24sp"
             tools:text="Name" />
+
+            <ImageView
+                android:id="@+id/sporticon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginBottom="10dp"
+                android:layout_gravity="bottom|right"
+                android:scaleType="fitCenter" />
+
+
+            <TextView
+                android:id="@+id/location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center"
+                android:gravity="start|center"
+                android:layout_marginLeft="20dp"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="@font/lato"
+                android:textColor="#fff"
+                android:textSize="20sp"
+                tools:text="Location" />
+
+
+        </LinearLayout>
+
 
 
     </android.support.v7.widget.CardView>

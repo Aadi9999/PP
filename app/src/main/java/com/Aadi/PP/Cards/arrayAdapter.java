@@ -1,6 +1,7 @@
 package com.Aadi.PP.Cards;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.design.widget.NavigationView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,24 +17,39 @@ import com.Aadi.PP.R;
 
 import java.util.List;
 
-import es.dmoral.toasty.Toasty;
+import im.delight.android.location.SimpleLocation;
 
 
 public class arrayAdapter extends ArrayAdapter<cards>{
 
+    private String longitude2, latitude2;
+    private SimpleLocation location;
+    private Double lat2;
+    private Double long2;
+
     Context context;
+    public static final String SHARED_PREFS = "sharedPrefs";
 
     public arrayAdapter(NavigationView.OnNavigationItemSelectedListener context, int resourceId, List<cards> items){
         super((Context) context, resourceId, items);
     }
     public View getView(int position, View convertView, ViewGroup parent){
+
         cards card_item = getItem(position);
+
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        final View convertView2 = inflater.inflate(R.layout.activity_main, null);
+
 
         if (convertView == null){
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.item, parent, false);
+
         }
 
+
+        TextView mLocation = convertView.findViewById(R.id.location);
         TextView name = convertView.findViewById(R.id.name);
+        TextView longitude = convertView.findViewById(R.id.location);
         ImageView image = convertView.findViewById(R.id.image);
         TextView sports = convertView.findViewById(R.id.sports);
         ImageView sportsicon = convertView.findViewById(R.id.sporticon);
@@ -42,7 +58,29 @@ public class arrayAdapter extends ArrayAdapter<cards>{
 
         name.setText(card_item.getName());
 
-        
+
+        if (card_item.getLongitude2() != null){
+            longitude2 = (card_item.getLongitude2());
+            latitude2 = (card_item.getLatitude2());
+            long2 = Double.valueOf(longitude2);
+            lat2 = Double.valueOf(latitude2);
+
+            location = new SimpleLocation(getContext());
+
+            final double latitude1 = location.getLatitude();
+            final double longitude1 = location.getLongitude();
+
+            double startLatitude = Double.valueOf(latitude1);
+            double startLongitude = Double.valueOf(longitude1);
+            double endLatitude = lat2;
+            double endLongitude = long2;
+            double distance = SimpleLocation.calculateDistance(startLatitude, startLongitude, endLatitude, endLongitude);
+
+
+            mLocation.setText(Integer.toString((int) distance/1000) + "km away");
+
+        }
+
         if (card_item.getSports() == "Badminton"){
             sportsicon.setImageResource(R.drawable.badminton);
         }
@@ -120,7 +158,6 @@ public class arrayAdapter extends ArrayAdapter<cards>{
                 Glide.with(convertView.getContext()).load(card_item.getProfileImageUrl()).into(image);
                 break;
         }
-
 
         return convertView;
 

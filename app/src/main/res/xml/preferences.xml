@@ -14,9 +14,13 @@
             android:title="@string/title_version" />
 
         <Preference
-            android:key="@string/key_send_feedback"
+            android:key="key_send_feedback"
             android:summary="@string/summary_support"
-            android:title="@string/title_send_feedback" />
+            android:title="@string/title_send_feedback" >
+
+    </Preference>
+
+
 
 
     </PreferenceCategory>

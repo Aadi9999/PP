@@ -1,6 +1,7 @@
 package com.Aadi.PP;
 
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -8,6 +9,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class ChooseLoginRegistrationActivity extends AppCompatActivity {
 
@@ -17,8 +20,9 @@ public class ChooseLoginRegistrationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_login_registration);
 
-        mLogin = (Button) findViewById(R.id.login);
-        mRegister = (Button) findViewById(R.id.register);
+        mLogin = findViewById(R.id.login);
+        mRegister = findViewById(R.id.register);
+
 
 
         mLogin.setOnClickListener(new View.OnClickListener() {
@@ -40,5 +44,10 @@ public class ChooseLoginRegistrationActivity extends AppCompatActivity {
                 return;
             }
         });
+
+
+
+
+
     }
 }

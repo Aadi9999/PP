@@ -5,11 +5,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_gravity="center"
     android:background="#ffff"
     tools:context="com.Aadi.PP.Chat.ChatActivity">
 
 
     <android.support.v4.widget.NestedScrollView
+        android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/sendLayout"
@@ -49,7 +51,6 @@
         android:background="@android:color/transparent"
         android:layout_gravity="center"
         android:paddingBottom="10dp"
-        android:paddingTop="10dp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:inputType="textCapSentences|textAutoCorrect"
@@ -91,12 +92,21 @@
             android:weightSum="20"
             android:orientation="horizontal">
 
+
             <com.mikhaellopez.circularimageview.CircularImageView
                 android:layout_gravity="center"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="@drawable/profilepic"
                 android:id="@+id/MatchImage"/>
+
+            <ImageView
+                android:layout_marginLeft="10dp"
+                android:layout_gravity="center"
+                android:id="@+id/sporticon3"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:scaleType="fitCenter" />
 
             <LinearLayout android:orientation="vertical"
                 android:layout_height="match_parent"
@@ -113,9 +123,10 @@
                     android:fontFamily="@font/lato"
                     android:textColor="#fff"
                     android:text="Live Chat"
-                    android:textSize="15sp"
+                    android:textSize="13sp"
                     android:textStyle="bold"
                     android:id="@id/MatchName"/>
+
 
                 <TextView
                     android:layout_width="match_parent"
@@ -126,13 +137,18 @@
                     android:fontFamily="@font/lato"
                     android:textColor="#e4e4e4"
                     android:text="Last seen"
-                    android:textSize="12sp"
+                    android:textSize="10sp"
                     android:id="@+id/user_last_seen"/>
 
 
 
+
+
             </LinearLayout>
+
         </LinearLayout>
+
+
         </android.support.v7.widget.Toolbar>
 
 </RelativeLayout>
