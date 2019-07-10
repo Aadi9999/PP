@@ -1,26 +1,10 @@
 package com.Aadi.PP;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
-import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
-import android.preference.RingtonePreference;
-import android.text.TextUtils;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Toast;
 
-import com.Aadi.PP.Matches.MatchesActivity;
 import com.webianks.easy_feedback.EasyFeedback;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
@@ -45,6 +29,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preferences);
 
+
+
             // feedback preference click listener
             Preference myPref = findPreference(getString(R.string.key_send_feedback));
             myPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -60,9 +46,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
 
 
+
         }
-
-
 
 
 

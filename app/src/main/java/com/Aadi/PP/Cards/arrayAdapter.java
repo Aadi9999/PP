@@ -3,6 +3,7 @@ package com.Aadi.PP.Cards;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.design.widget.NavigationView;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,18 +15,34 @@ import android.widget.Toast;
 import com.Aadi.PP.MainActivity;
 import com.bumptech.glide.Glide;
 import com.Aadi.PP.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import im.delight.android.location.SimpleLocation;
+
+import static android.content.Context.MODE_PRIVATE;
 
 
 public class arrayAdapter extends ArrayAdapter<cards>{
 
-    private String longitude2, latitude2;
+
+    private DatabaseReference mUserDatabase;
+
+    private String longitude2, latitude2, orgname;
     private SimpleLocation location;
     private Double lat2;
     private Double long2;
+    private String currentUId2;
+    private DatabaseReference usersDb;
 
     Context context;
     public static final String SHARED_PREFS = "sharedPrefs";
@@ -46,6 +63,9 @@ public class arrayAdapter extends ArrayAdapter<cards>{
 
         }
 
+        usersDb = FirebaseDatabase.getInstance().getReference().child("Users");
+        currentUId2 = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(currentUId2);
 
         TextView mLocation = convertView.findViewById(R.id.location);
         TextView name = convertView.findViewById(R.id.name);
@@ -76,10 +96,14 @@ public class arrayAdapter extends ArrayAdapter<cards>{
             double endLongitude = long2;
             double distance = SimpleLocation.calculateDistance(startLatitude, startLongitude, endLatitude, endLongitude);
 
-
-            mLocation.setText(Integer.toString((int) distance/1000) + "km away");
+            if (location != null) {
+                mLocation.setText(Integer.toString((int) distance / 1000) + "km away");
+            }
 
         }
+
+
+
 
         if (card_item.getSports() == "Badminton"){
             sportsicon.setImageResource(R.drawable.badminton);

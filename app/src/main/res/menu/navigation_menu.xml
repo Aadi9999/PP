@@ -1,33 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:theme="@style/NavigationDrawerStyle">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/browse"
-        android:icon="@drawable/homeicon"
-        android:title="Browse"
+        android:title="        Browse"
         />
 
 
     <item
         android:id="@+id/matches"
-        android:icon="@drawable/usersicon"
-        android:title="Matches"
+        android:title="        Matches"
         />
 
 
     <item
         android:id="@+id/settings"
-        android:layout_width="match_parent"
-        android:icon="@drawable/settingsicon"
-        android:title="Settings"
+        android:title="        Settings"
          />
 
     <item
         android:id="@+id/log_out"
-        android:icon="@drawable/logouticon"
-        android:title="Log out"
+        android:title="        Log out"
          />
 
 </menu>

@@ -9,4 +9,5 @@
     <color name="color2">#2A4755</color>
     <color name="colorAccent2">#FF4801</color>
     <color name="graylight">#fafafa</color>
+    <color name="black_alpha_40">#66000000</color>
 </resources>
