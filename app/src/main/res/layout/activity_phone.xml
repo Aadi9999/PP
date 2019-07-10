@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+
+    <LinearLayout
+        android:id="@+id/linearLayout4"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="5dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="30dp"
+            android:layout_marginRight="50dp"
+            android:fontFamily="@font/lato"
+            android:padding="10dp"
+            android:text="Your number?"
+            android:textColor="@color/color1"
+            android:textSize="40dp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/linearLayout3"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="30dp"
+            android:orientation="horizontal">
+
+            <com.hbb20.CountryCodePicker
+                android:id="@+id/ccp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+
+        <EditText
+            android:id="@+id/editTextMobile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:fontFamily="@font/lato"
+            android:drawablePadding="10dp"
+            android:hint="Phone Number"
+            android:inputType="phone" />
+
+
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/enterverification"
+            android:layout_width="match_parent"
+            android:layout_gravity="center"
+            android:fontFamily="@font/lato"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="50dp"
+            android:visibility="invisible"
+            android:layout_marginLeft="50dp"
+            android:digits="0123456789"
+            android:drawablePadding="10dp"
+            android:hint="enter verification code"
+            android:inputType="phone"
+            android:maxLength="10" />
+
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="20dp"
+            android:fontFamily="@font/lato"
+            android:layout_marginBottom="20dp"
+            android:layout_gravity="center"
+            android:padding="10dp"
+            android:textColor="#000"
+            android:text="When you tap Continue, SportConnect will send a text with verification code. Message and data rates may apply. The verified phone number can be used to login."
+            android:textSize="14dp" />
+
+
+        <Button
+            android:id="@+id/buttonContinue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/editTextMobile"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp"
+            android:layout_gravity="center"
+            android:background="@drawable/gradbutton"
+            android:fontFamily="@font/lato"
+            android:text="CONTINUE"
+            android:textColor="#ffff"
+            android:textAllCaps="false"/>
+
+
+        <Button
+            android:id="@+id/buttonSignIn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:layout_below="@id/editTextMobile"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center"
+            android:background="@drawable/gradbutton"
+            android:fontFamily="@font/lato"
+            android:text="VERIFY"
+            android:textColor="#ffff"
+            android:visibility="invisible"
+            android:textAllCaps="false" />
+
+    </LinearLayout>
+</LinearLayout>

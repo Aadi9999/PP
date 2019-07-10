@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="top|center_horizontal">
+
+    <com.mikhaellopez.circularimageview.CircularImageView
+    android:layout_width="130dp"
+    android:layout_height="130dp"
+        android:id="@+id/img"
+    android:layout_marginBottom="15dp"
+    android:layout_marginTop="30dp"
+    android:background="@drawable/profilepic"/>
+
+    <TextView
+        android:id="@+id/nam"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/lato_light"
+        android:text="Hey"
+        android:textColor="#383838"
+        android:textSize="25dp" />
+    <View
+        android:layout_width="wrap_content"
+        android:layout_marginRight="50dp"
+        android:layout_marginLeft="50dp"
+        android:layout_height="1dp"
+        android:background="#EAEAEA"
+        android:layout_marginBottom="15dp"
+        android:layout_marginTop="30dp"/>
+
+
+
+</LinearLayout>

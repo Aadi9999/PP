@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:background="#ffff"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/lato"
+            android:textStyle="bold"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="60dp"
+            android:textSize="30dp"
+            android:text="SportConnect"
+            android:textColor="#6200EE" />
+
+        <TextView
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/lato"
+            android:textStyle="bold"
+            android:layout_marginBottom="50dp"
+            android:textSize="24dp"
+            android:text="Connect with people who love the same sports"
+            android:textColor="#0F1950" />
+
+
+        <ImageView
+            android:background="@drawable/illustration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="40dp"/>
+
+        <TextView
+            android:layout_width="300dp"
+            android:layout_marginBottom="100dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:fontFamily="@font/lato"
+            android:textSize="15dp"
+            android:gravity="bottom"
+            android:text="SportConnect allows you to go online, chat and meet with people who love the same sports nearby."
+            android:textColor="#0F1950" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:textAlignment="center"
+            android:textColor="@android:color/black"
+ />
+
+    </LinearLayout>
+
+</RelativeLayout>
