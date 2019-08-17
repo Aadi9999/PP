@@ -32,51 +32,15 @@ public class BetweenActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mAuth = FirebaseAuth.getInstance();
-        currentUId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(currentUId);
 
         PermissionListener permissionlistener = new PermissionListener() {
             @Override
             public void onPermissionGranted() {
-                mUserDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
-                            Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
-                            if (map.get("phone") != null) {
-                                String sports = map.get("phone").toString();
-                                SharedPreferences prefs = getSharedPreferences("UpdPhone", MODE_PRIVATE);
-                                String restoredText = prefs.getString("myUpdPhone", null);
-                                if (sports.equals(restoredText)) {
-                                    Intent intent = new Intent(BetweenActivity.this, mActivity.class);
-                                    startActivity(intent);
-                                    finish();
-                                    return;
-                                }
-                                }
-                            else {
-                                Intent intent2 = new Intent(BetweenActivity.this, SignupActivity.class);
-                                startActivity(intent2);
-                                finish();
-                                return;
-                            }
 
-                        }
-                        else {
-                            Intent intent2 = new Intent(BetweenActivity.this, SignupActivity.class);
-                            startActivity(intent2);
-                            finish();
-                            return;
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
+                Intent intent2 = new Intent(BetweenActivity.this, SignupActivity.class);
+                startActivity(intent2);
+                finish();
+                return;
             }
 
             @Override

@@ -2,26 +2,19 @@ package com.Aadi.PP;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.os.Build;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.Aadi.PP.Matches.MatchesFragment;
 import com.bumptech.glide.Glide;
@@ -37,12 +30,16 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+import im.delight.android.location.SimpleLocation;
+
 public class mActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
     private NavigationView navigationView;
     private String name, currentUId, profileImageUrl;
     private DatabaseReference usersDb;
     private Toolbar toolbar;
+    private SharedPreferences sharePrefObje;
+    private SimpleLocation location;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +49,18 @@ public class mActivity extends AppCompatActivity implements NavigationView.OnNav
         usersDb = FirebaseDatabase.getInstance().getReference().child("Users");
         currentUId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+        location = new SimpleLocation(mActivity.this);
+
+        final double latitude1 = location.getLatitude();
+        final double longitude1 = location.getLongitude();
+
+        Map currentLocationMap = new HashMap();
+        currentLocationMap.put("latitude",latitude1);
+        currentLocationMap.put("longitude",longitude1);
+
+
+        usersDb.child(currentUId).child("location")
+                .updateChildren(currentLocationMap);
 
 
         drawer = findViewById(R.id.drawer_layout);
@@ -93,8 +102,12 @@ public class mActivity extends AppCompatActivity implements NavigationView.OnNav
                         .setMessage("Would you like to Log out?")
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
+                                sharePrefObje = getSharedPreferences("PREFERENCENAME", MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharePrefObje.edit();
+                                editor.clear();
+                                editor.apply();
                                 updateUserStatus("offline");
-                                Intent inte = new Intent(mActivity.this, ChooseLoginRegistrationActivity.class);
+                                Intent inte = new Intent(mActivity.this, PhoneoneActivity.class);
                                 FirebaseAuth.getInstance().signOut();
                                 startActivity(inte);
                             }

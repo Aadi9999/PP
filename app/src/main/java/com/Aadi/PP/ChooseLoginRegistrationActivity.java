@@ -2,6 +2,7 @@ package com.Aadi.PP;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Button;
@@ -21,30 +22,6 @@ public class ChooseLoginRegistrationActivity extends AppCompatActivity {
 
         mLogin = findViewById(R.id.login);
         mRegister = findViewById(R.id.register);
-
-        SharedPreferences prefs = getSharedPreferences("PREFERENCENAME", MODE_PRIVATE);
-        Boolean restoredText = prefs.getBoolean("isLoginKey", false);
-
-
-
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                if (user != null) {
-                    // User is signed in
-                    Intent i = new Intent(ChooseLoginRegistrationActivity.this, PhonetwoActivity.class);
-                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(i);
-                } else {
-                    Intent i = new Intent(ChooseLoginRegistrationActivity.this, PhonetwoActivity.class);
-                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(i);
-
-                }
-
-
-
-
-
-
 
 
     }

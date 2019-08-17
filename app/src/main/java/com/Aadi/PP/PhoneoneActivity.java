@@ -2,12 +2,21 @@ package com.Aadi.PP;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.Aadi.PP.Intro.SliderActivity;
@@ -50,13 +59,17 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.hbb20.CCPCountry;
+import com.hbb20.CCPCountryGroup;
 import com.hbb20.CountryCodePicker;
 
 import java.util.concurrent.TimeUnit;
 
 import es.dmoral.toasty.Toasty;
 
-public class PhonetwoActivity extends AppCompatActivity
+import static android.content.Context.MODE_PRIVATE;
+
+public class PhoneoneActivity extends Fragment
 {
     private EditText InputUserPhoneNumber, InputUserVerificationCode;
     private Button SendVerificationCodeButton, VerifyButton;
@@ -69,27 +82,37 @@ public class PhonetwoActivity extends AppCompatActivity
     private SharedPreferences sharePrefObje;
     private String mVerificationId, UpdatedPhoneNumber;
     private PhoneAuthProvider.ForceResendingToken mResendToken;
+    private CountryCodePicker ccp;
 
-
-
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_phone);
-
-
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+        View rootView = inflater.inflate(R.layout.activity_phone, container, false);
+        ccp = rootView.findViewById(R.id.ccp);
         mAuth = FirebaseAuth.getInstance();
+        InputUserPhoneNumber = rootView.findViewById(R.id.editTextMobile);
+        InputUserVerificationCode = rootView.findViewById(R.id.enterverification);
+        SendVerificationCodeButton = rootView.findViewById(R.id.buttonContinue);
+        VerifyButton = rootView.findViewById(R.id.buttonSignIn);
 
-        CountryCodePicker ccp;
-        ccp = findViewById(R.id.ccp);
+        return rootView;
+    }
+
+    public void onViewCreated(View view, Bundle savedInstanceState) {
 
 
-        InputUserPhoneNumber = findViewById(R.id.editTextMobile);
-        InputUserVerificationCode = findViewById(R.id.enterverification);
-        SendVerificationCodeButton = findViewById(R.id.buttonContinue);
-        VerifyButton = findViewById(R.id.buttonSignIn);
-        loadingBar = new ProgressDialog(this);
+        SharedPreferences prefs = getActivity().getSharedPreferences("PREFERENCENAME", MODE_PRIVATE);
+        Intent intent = null;
+        if (prefs.getBoolean("isLoginKey", false)){ //user logged in before
+            intent = new Intent(getActivity(), mActivity.class);
+            startActivity(intent);
+        } else {
+
+        }
+
+
+        loadingBar = new ProgressDialog(getActivity());
 
         SendVerificationCodeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,7 +126,7 @@ public class PhonetwoActivity extends AppCompatActivity
 
                 if (TextUtils.isEmpty(phoneNumber))
                 {
-                    Toast.makeText(PhonetwoActivity.this, "Please enter your phone number first...", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Please enter your phone number first...", Toast.LENGTH_SHORT).show();
                 }
                 else
                 {
@@ -113,7 +136,7 @@ public class PhonetwoActivity extends AppCompatActivity
                     loadingBar.show();
 
 
-                    PhoneAuthProvider.getInstance().verifyPhoneNumber(phoneNumber, 60, TimeUnit.SECONDS, PhonetwoActivity.this, callbacks);
+                    PhoneAuthProvider.getInstance().verifyPhoneNumber(phoneNumber, 60, TimeUnit.SECONDS, getActivity(), callbacks);
                 }
             }
         });
@@ -133,7 +156,7 @@ public class PhonetwoActivity extends AppCompatActivity
 
                 if (TextUtils.isEmpty(verificationCode))
                 {
-                    Toast.makeText(PhonetwoActivity.this, "Please write verification code first...", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Please write verification code first...", Toast.LENGTH_SHORT).show();
                 }
                 else
                 {
@@ -159,7 +182,7 @@ public class PhonetwoActivity extends AppCompatActivity
             @Override
             public void onVerificationFailed(FirebaseException e)
             {
-                Toast.makeText(PhonetwoActivity.this, "Invalid Phone Number, Please enter correct phone number with your country code", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "Invalid Phone Number, Please enter correct phone number with your country code", Toast.LENGTH_LONG).show();
                 loadingBar.dismiss();
 
                 InputUserPhoneNumber.setVisibility(View.VISIBLE);
@@ -177,7 +200,7 @@ public class PhonetwoActivity extends AppCompatActivity
                 mResendToken = token;
 
 
-                Toast.makeText(PhonetwoActivity.this, "Code has been sent, please check and verify", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Code has been sent, please check and verify", Toast.LENGTH_SHORT).show();
                 loadingBar.dismiss();
                 ccp.setVisibility(View.INVISIBLE);
                 InputUserPhoneNumber.setVisibility(View.INVISIBLE);
@@ -194,17 +217,12 @@ public class PhonetwoActivity extends AppCompatActivity
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential)
     {
         mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
 
                         if (task.isSuccessful())
                         {
-
-
-                            SharedPreferences.Editor editor = getSharedPreferences("ph_num", MODE_PRIVATE).edit();
-                            editor.putString("myNum", UpdatedPhoneNumber);
-                            editor.apply();
 
                             loadingBar.dismiss();
                             SendUserToMainActivity();
@@ -212,7 +230,7 @@ public class PhonetwoActivity extends AppCompatActivity
                         else
                         {
                             String message = task.getException().toString();
-                            Toast.makeText(PhonetwoActivity.this, "Error: " + message, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), "Error: " + message, Toast.LENGTH_SHORT).show();
                             loadingBar.dismiss();
                         }
                     }
@@ -227,18 +245,16 @@ public class PhonetwoActivity extends AppCompatActivity
 
     private void SendUserToMainActivity()
     {
-        sharePrefObje = getSharedPreferences("PREFERENCENAME", MODE_PRIVATE);
-        SharedPreferences.Editor editor1 = sharePrefObje.edit();
-        editor1.putBoolean("isLoginKey",true);
-        editor1.commit();
 
-        SharedPreferences.Editor editor = getSharedPreferences("UpdPhone", MODE_PRIVATE).edit();
-        editor.putString("myUpdPhone", UpdatedPhoneNumber);
-        editor.apply();
 
-        Intent mainIntent = new Intent(PhonetwoActivity.this, BetweenActivity.class);
-        startActivity(mainIntent);
-        finish();
+        Fragment fragment = new SignupFragment1();
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
+        fragmentTransaction.replace(android.R.id.content, fragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+
 
 
     }

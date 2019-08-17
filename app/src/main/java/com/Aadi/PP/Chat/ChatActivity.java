@@ -2,27 +2,33 @@ package com.Aadi.PP.Chat;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.view.menu.MenuView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
+import com.Aadi.PP.Cards.cards;
+import com.Aadi.PP.ChooseLoginRegistrationActivity;
+import com.Aadi.PP.LoginActivity;
+import com.Aadi.PP.MainActivity;
+import com.Aadi.PP.MapFragment;
 import com.Aadi.PP.Matches.MatchesFragment;
+import com.Aadi.PP.RegistrationActivity;
+import com.Aadi.PP.mActivity;
+import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -44,7 +50,7 @@ import java.util.Map;
 
 import es.dmoral.toasty.Toasty;
 
-public class ChatActivity extends Fragment {
+public class ChatActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mChatAdapter;
     private RecyclerView.LayoutManager mChatLayoutManager;
@@ -68,8 +74,6 @@ public class ChatActivity extends Fragment {
 
     private Button mSendButton;
 
-    private ImageView sportsicon;
-
     private FirebaseAuth mAuth;
 
     private String currentUserID, matchId, chatId, matchName;
@@ -77,32 +81,27 @@ public class ChatActivity extends Fragment {
     DatabaseReference mDatabaseUser, mDatabaseChat, usersDb, RootRef, mDatabaseUser1;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        setHasOptionsMenu(true);
-        return inflater.inflate(R.layout.activity_chat, container, false);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_chat);
 
-    }
+        userLastSeen = findViewById(R.id.user_last_seen);
 
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+        android.support.v7.widget.Toolbar toolbar = findViewById(R.id.toolBar);
 
-        userLastSeen = view.findViewById(R.id.user_last_seen);
-
-        android.support.v7.widget.Toolbar toolbar = view.findViewById(R.id.toolBar);
-
-        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+        setSupportActionBar(toolbar);
         toolbar.setNavigationIcon(R.drawable.backicon);
 
 
-        sportsicon = view.findViewById(R.id.sporticon3);
-        mMatchName = view.findViewById(R.id.MatchName);
-        mMatchImage = view.findViewById(R.id.MatchImage);
+
+        mMatchName = findViewById(R.id.MatchName);
+        mMatchImage = findViewById(R.id.MatchImage);
 
         usersDb = FirebaseDatabase.getInstance().getReference().child("Users");
         RootRef = FirebaseDatabase.getInstance().getReference();
-        matchId = getActivity().getIntent().getExtras().getString("matchId");
+        matchId = getIntent().getExtras().getString("matchId");
 
-        matchName = getActivity().getIntent().getExtras().getString("name");
+        matchName = getIntent().getExtras().getString("name");
         currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         mDatabaseUser = FirebaseDatabase.getInstance().getReference().child("Users").child(currentUserID).child("connections").child("matches").child(matchId).child("ChatId");
         mDatabaseUser1 = FirebaseDatabase.getInstance().getReference().child("Users").child(currentUserID).child("connections").child("matches").child(matchId);
@@ -116,19 +115,19 @@ public class ChatActivity extends Fragment {
 
 
         Userreport = RootRef.child("Users").child(matchId).child("Report");
-        mRecyclerView = view.findViewById(R.id.recyclerView);
+        mRecyclerView = findViewById(R.id.recyclerView);
         mRecyclerView.setNestedScrollingEnabled(false);
         mRecyclerView.setHasFixedSize(false);
-        mChatLayoutManager = new LinearLayoutManager(getActivity());
+        mChatLayoutManager = new LinearLayoutManager(ChatActivity.this);
         mRecyclerView.setLayoutManager(mChatLayoutManager);
-        mChatAdapter = new ChatAdapter(getDataSetChat(), getActivity());
+        mChatAdapter = new ChatAdapter(getDataSetChat(), ChatActivity.this);
         mRecyclerView.setAdapter(mChatAdapter);
 
 
-         mScrollview = view.findViewById(R.id.scroll_view);
+        mScrollview = findViewById(R.id.scroll_view);
 
-        mSendEditText = view.findViewById(R.id.message);
-        mSendButton = view.findViewById(R.id.send);
+        mSendEditText = findViewById(R.id.message);
+        mSendButton = findViewById(R.id.send);
 
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -183,7 +182,7 @@ public class ChatActivity extends Fragment {
                     if(dataSnapshot.child("profileImageUrl").getValue()!=null){
                         profileImageUrl = dataSnapshot.child("profileImageUrl").getValue().toString();
                     }
-                    Glide.with(getActivity().getApplicationContext()).load(profileImageUrl).into(mMatchImage);
+                    Glide.with(getApplicationContext()).load(profileImageUrl).into(mMatchImage);
 
                     matchName = dataSnapshot.child("name").getValue().toString();
                     mMatchName.setText(matchName);
@@ -202,9 +201,9 @@ public class ChatActivity extends Fragment {
 
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        getActivity().getMenuInflater().inflate(R.menu.chat_menu, menu);
-        super.onCreateOptionsMenu(menu, inflater);
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.chat_menu, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
 
@@ -230,7 +229,7 @@ public class ChatActivity extends Fragment {
                         userLastSeen.setText("last seen:  " + lastTime + "  " + lastDate);
                     }
 
-
+                    ImageView sportsicon = findViewById(R.id.sporticon3);
                     if (dataSnapshot.child("sports").getValue()!=null) {
                         String sports = dataSnapshot.child("sports").getValue().toString();
 
@@ -304,7 +303,7 @@ public class ChatActivity extends Fragment {
                         }
                     }
 
-            }
+                }
             }
 
             @Override
@@ -340,7 +339,7 @@ public class ChatActivity extends Fragment {
 
 
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
 
         mScrollview.postDelayed(new Runnable() {
@@ -353,7 +352,7 @@ public class ChatActivity extends Fragment {
     }
 
     @Override
-    public void onPause() {
+    protected void onPause() {
         super.onPause();
 
         updateUserStatus("offline");
@@ -379,10 +378,11 @@ public class ChatActivity extends Fragment {
         });
     }
 
-
+    @Override
     public void onBackPressed() {
-        Intent intent = new Intent(getActivity(), MatchesFragment.class);
+        Intent intent = new Intent(ChatActivity.this, mActivity.class);
         startActivity(intent);
+        finish();
         return;
     }
 
@@ -392,16 +392,18 @@ public class ChatActivity extends Fragment {
         int id = item.getItemId();
         switch (id){
             case android.R.id.home:
-                Intent intent = new Intent(getActivity(), MatchesFragment.class);
+                Intent intent = new Intent(ChatActivity.this, mActivity.class);
                 startActivity(intent);
+                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                finish();
                 return true;
             case R.id.Report:
-                new AlertDialog.Builder(getActivity())
+                new AlertDialog.Builder(ChatActivity.this)
                         .setTitle("Report this contact to SportConnect?")
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 Userreport.setValue("Reported");
-                                Toasty.info(getActivity(), "User Reported", Toast.LENGTH_SHORT).show();
+                                Toasty.info(ChatActivity.this, "User Reported", Toast.LENGTH_SHORT).show();
                             }
                         })
                         .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -414,14 +416,15 @@ public class ChatActivity extends Fragment {
                 return true;
 
             case R.id.Block:
-                new AlertDialog.Builder(getActivity())
+                new AlertDialog.Builder(ChatActivity.this)
                         .setTitle("Block this Contact?")
                         .setMessage("Blocked contacts will be permanently removed from Connects page, and you will not be able to message them.")
                         .setPositiveButton("Block", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 mDatabaseUser1.removeValue();
-                                Intent intent = new Intent(getActivity(), MatchesFragment.class);
+                                Intent intent = new Intent(ChatActivity.this, mActivity.class);
                                 startActivity(intent);
+                                finish();
                                 return;
                             }
                         })

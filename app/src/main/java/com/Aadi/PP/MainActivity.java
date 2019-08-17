@@ -86,10 +86,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             setContentView(R.layout.activity_main);
             setTheme(R.style.AppTheme);
 
-            sharePrefObje = getSharedPreferences("PREFERENCENAME", MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharePrefObje.edit();
-            editor.putBoolean("isLoginKey",true);
-            editor.commit();
+
 
             dl = findViewById(R.id.activity_main);
             t = new ActionBarDrawerToggle(this, dl,R.string.Open, R.string.Close);
@@ -115,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             finish();
                             return true;
                         case R.id.settings:
-                            Intent intent2 = new Intent(MainActivity.this, ProfileActivity.class);
+                            Intent intent2 = new Intent(MainActivity.this, MapFragment.class);
                             startActivity(intent2);
                             finish();
                             return true;

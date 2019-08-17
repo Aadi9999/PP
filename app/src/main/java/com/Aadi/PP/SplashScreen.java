@@ -2,13 +2,11 @@ package com.Aadi.PP;
 
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 
 public class SplashScreen extends AppCompatActivity {
@@ -21,7 +19,7 @@ public class SplashScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
 
-            Intent i = new Intent(SplashScreen.this, ChooseLoginRegistrationActivity.class);
+            Intent i = new Intent(SplashScreen.this, BetweenActivity.class);
             startActivity(i);
             finish();
 

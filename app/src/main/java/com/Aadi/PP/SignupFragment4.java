@@ -32,6 +32,7 @@ import static android.content.Context.MODE_PRIVATE;
 public class SignupFragment4 extends Fragment {
 
     private TextView mExperienceLevel;
+    private SharedPreferences sharePrefObje;
     private int mProgress;
     private int mProgress2, restoredText;
     private TextView mValue;
@@ -170,6 +171,11 @@ public class SignupFragment4 extends Fragment {
 
 
     public void onBackPressed() {
+        sharePrefObje = getActivity().getSharedPreferences("PREFERENCENAME", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharePrefObje.edit();
+        editor.putBoolean("isLoginKey",true);
+        editor.commit();
+
         Intent intent = new Intent(getActivity(), mActivity.class);
         startActivity(intent);
         getActivity().finish();

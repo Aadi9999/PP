@@ -36,6 +36,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.Aadi.PP.Chat.ChatActivity;
 import com.Aadi.PP.Matches.MatchesFragment;
 import com.Aadi.PP.R;
 import com.bumptech.glide.Glide;
@@ -111,6 +112,9 @@ public class MapFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.activity_maps, container, false);
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.frg);  //use SuppoprtMapFragment for using in fragment instead of activity  MapFragment = activity   SupportMapFragment = fragment
 
+        usersDb = FirebaseDatabase.getInstance().getReference().child("Users");
+        currentUId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
 
 
         mapFragment.getMapAsync(new OnMapReadyCallback() {
@@ -133,10 +137,6 @@ public class MapFragment extends Fragment {
 
 
 
-
-
-        usersDb = FirebaseDatabase.getInstance().getReference().child("Users");
-        currentUId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
 
                 usersDb.addChildEventListener(new ChildEventListener() {
@@ -178,11 +178,13 @@ public class MapFragment extends Fragment {
                             //20: Buildings
 
 
-                            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat2, long2), 14.0f));
+                            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat2, long2), 17.0f));
 
                             if (dataSnapshot.child("sports").getValue() != null) {
                                 name = dataSnapshot.child("name").getValue().toString();
                                 uid = dataSnapshot.getKey();
+
+
 
                                 if (dataSnapshot.child("sports").getValue().toString() == "Badminton") {
 
@@ -534,7 +536,7 @@ public class MapFragment extends Fragment {
                                     .OnPositiveClicked(new FancyAlertDialogListener() {
                                         @Override
                                         public void OnClick() {
-                                            Intent intent = new Intent(getActivity(), MatchesFragment.class);
+                                            Intent intent = new Intent(getActivity(), ChatActivity.class);
                                             startActivity(intent);
                                             return;
                                         }

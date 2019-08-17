@@ -38,7 +38,7 @@ public class SignupActivity extends AppCompatActivity {
         fragment = fm.findFragmentByTag("myFragmentTag");
         if (fragment == null) {
             FragmentTransaction ft = fm.beginTransaction();
-            fragment = new SignupFragment1();
+            fragment = new PhoneoneActivity();
             ft.add(android.R.id.content, fragment, "myFragmentTag");
             ft.commit();
         }

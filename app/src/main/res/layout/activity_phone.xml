@@ -18,13 +18,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="50dp"
             android:layout_marginRight="50dp"
             android:fontFamily="@font/lato"
-            android:padding="10dp"
-            android:text="Your number?"
-            android:textColor="@color/color1"
-            android:textSize="40dp"
+            android:text="Enter your mobile number"
+            android:textColor="#000"
+            android:textSize="20dp"
             android:textStyle="bold" />
 
         <LinearLayout
@@ -37,6 +36,7 @@
             android:orientation="horizontal">
 
             <com.hbb20.CountryCodePicker
+                android:layout_marginTop="3dp"
                 android:id="@+id/ccp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
@@ -48,8 +48,7 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="20dp"
             android:fontFamily="@font/lato"
-            android:drawablePadding="10dp"
-            android:hint="Phone Number"
+            android:hint="(670)554-0231"
             android:inputType="phone" />
 
 
@@ -69,6 +68,8 @@
             android:hint="enter verification code"
             android:inputType="phone"
             android:maxLength="10" />
+
+
 
 
 
