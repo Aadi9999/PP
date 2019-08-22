@@ -17,6 +17,7 @@
     <TextView
         style="@style/Parent.headerText"
         android:paddingTop="10dp"
+        android:paddingBottom="20dp"
         android:text="Connects" />
 
     </LinearLayout>
@@ -29,7 +30,7 @@
         <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="20dp"
+            android:paddingTop="30dp"
             android:id="@+id/recyclerView"
             android:scrollbars="vertical">
         </android.support.v7.widget.RecyclerView>
@@ -62,14 +63,14 @@
                 android:layout_marginTop="40dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/lato"
-                android:textColor="#000"
-                android:textSize="20dp"
-                android:textStyle="bold"
+                style="@style/Parent.headerText"
+                android:textSize="24dp"
                 android:layout_gravity="center|bottom"
-                android:text="Keep swiping to connect" />
+                android:text="Keep swiping to Connect" />
 
             <TextView
+                style="@style/Parent.headerText"
+                android:textColor="#5D5C5C"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
@@ -77,8 +78,7 @@
                 android:layout_marginRight="40dp"
                 android:layout_marginBottom="50dp"
                 android:textSize="18dp"
-                android:fontFamily="@font/lato"
-                android:layout_gravity="center_vertical|center_horizontal"
+                android:layout_gravity="center|bottom"
                 android:text="When you connect with other users they'll appear here, where you can send them a message." />
 
 

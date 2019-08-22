@@ -91,7 +91,6 @@
                 android:id="@+id/MatchImage"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginTop="5dp"
                 app:civ_border_width="2dp"
                 app:civ_border_color="@color/imageBorderColor"
                 android:src="@drawable/user_dp"
@@ -116,17 +115,16 @@
             <ImageView
                 android:layout_marginLeft="10dp"
                 android:id="@+id/sporticon3"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_marginTop="5dp"
-                android:layout_toRightOf="@id/user_last_seen"
-                android:layout_below="@id/MatchName"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_toRightOf="@id/MatchName"
+                android:layout_above="@id/user_last_seen"
                 android:scaleType="fitCenter" />
 
             <TextView
                 style="@style/Parent.headerText"
                 android:text="Edit personal details"
-                android:textSize="14sp"
+                android:textSize="12sp"
                 android:textColor="#5D5C5C"
                 android:id="@+id/user_last_seen"
                 android:layout_below="@id/MatchName"

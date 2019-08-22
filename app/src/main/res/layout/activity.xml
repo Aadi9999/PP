@@ -33,7 +33,7 @@
         app:elevation="10dp"
         app:labelVisibilityMode="labeled"
         app:itemIconTint="@drawable/bottom_navigation_selector"
-        app:itemTextColor="@color/contentTextColor"
+        app:itemTextColor="@drawable/bottom_navigation_selector"
         app:itemBackground="@color/bottomNavigationBackground"/>
 
 

@@ -4,7 +4,9 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
-    android:padding="30dp">
+    android:paddingTop="20dp"
+    android:paddingRight="30dp"
+    android:paddingLeft="30dp">
 
 
         <com.mikhaellopez.circularimageview.CircularImageView
@@ -14,7 +16,6 @@
             app:civ_border_width="2dp"
             app:civ_border_color="@color/imageBorderColor"
             android:src="@drawable/user_dp"
-
             android:layout_marginRight="10dp"/>
 
         <TextView
@@ -22,7 +23,7 @@
             style="@style/Parent.headerText"
             android:text="Kapil Mohan"
             android:layout_marginTop="5dp"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:layout_toRightOf="@id/MatchImage" />
 
         <TextView
@@ -39,7 +40,6 @@
             android:id="@+id/sporticon2"
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:layout_marginTop="5dp"
             android:layout_toRightOf="@id/user_last_seen"
             android:layout_below="@id/MatchName"
             android:scaleType="fitCenter" />
@@ -47,7 +47,7 @@
         <TextView
             style="@style/Parent.headerText"
             android:text="Edit personal details"
-            android:textSize="16sp"
+            android:textSize="12sp"
             android:textColor="#5D5C5C"
             android:id="@+id/user_last_seen"
             android:layout_below="@id/MatchName"

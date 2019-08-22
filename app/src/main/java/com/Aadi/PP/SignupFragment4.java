@@ -50,9 +50,6 @@ public class SignupFragment4 extends Fragment {
         currentUId2 = FirebaseAuth.getInstance().getCurrentUser().getUid();
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(currentUId2);
 
-        ProgressBar progressBar = rootView.findViewById(R.id.my_progressBar);
-        progressBar.getProgressDrawable().setColorFilter(ContextCompat.getColor(getContext(), R.color.color1), PorterDuff.Mode.SRC_IN );
-
         SharedPreferences prefs = getContext().getSharedPreferences("Radius", MODE_PRIVATE);
         restoredText = prefs.getInt("myInt", 3);
 

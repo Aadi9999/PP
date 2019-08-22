@@ -48,9 +48,6 @@ public class SignupFragment2 extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         Savesettings();
 
-        ProgressBar progressBar = rootView.findViewById(R.id.my_progressBar);
-        progressBar.getProgressDrawable().setColorFilter(ContextCompat.getColor(getContext(), R.color.color1), PorterDuff.Mode.SRC_IN );
-
         return rootView;
     }
 

@@ -63,9 +63,6 @@ public class SignupFragment3 extends Fragment {
         mButton = rootView.findViewById(R.id.button);
 
 
-        ProgressBar progressBar = rootView.findViewById(R.id.my_progressBar);
-        progressBar.getProgressDrawable().setColorFilter(ContextCompat.getColor(getContext(), R.color.color1), PorterDuff.Mode.SRC_IN );
-
         animateIn();
 
         mCardAdapter = new CardPagerAdapter();

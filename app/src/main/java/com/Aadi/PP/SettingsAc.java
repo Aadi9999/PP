@@ -35,9 +35,13 @@ public class SettingsAc extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
         View rootView = inflater.inflate(R.layout.settings, container, false);
 
+
+        if(new DarkModePrefManager(getActivity()).isNightMode()){
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        }
         EditProfile = rootView.findViewById(R.id.editprofile);
         Logout = rootView.findViewById(R.id.Logout);
-        darkModeSwitch = rootView.findViewById(R.id.darkModeSwitch);
+
 
         EditProfile.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,20 +80,8 @@ public class SettingsAc extends Fragment {
             }
         });
 
-        if(new DarkModePrefManager(getActivity()).isNightMode()){
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        }
-        setDarkModeSwitch();
 
-        //function for enabling dark mode
-
-
-
-        return rootView;
-    }
-
-    private void setDarkModeSwitch(){
-
+        darkModeSwitch = rootView.findViewById(R.id.darkModeSwitch);
         darkModeSwitch.setChecked(new DarkModePrefManager(getActivity()).isNightMode());
         darkModeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -97,10 +89,15 @@ public class SettingsAc extends Fragment {
                 DarkModePrefManager darkModePrefManager = new DarkModePrefManager(getActivity());
                 darkModePrefManager.setDarkMode(!darkModePrefManager.isNightMode());
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                getActivity().recreate();
 
             }
         });
+
+        return rootView;
     }
+
+
 
 
 

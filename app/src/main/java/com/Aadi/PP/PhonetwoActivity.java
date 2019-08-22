@@ -52,6 +52,10 @@ public class PhonetwoActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String mobile = intent.getStringExtra("mobile");
         sendVerificationCode(mobile);
+        android.support.v7.widget.Toolbar toolbar = findViewById(R.id.toolBar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_ios_black_18);
+        getSupportActionBar().setTitle("");
 
 
         otpTextView = findViewById(R.id.otp_view);
@@ -134,6 +138,14 @@ public class PhonetwoActivity extends AppCompatActivity {
         toast.show();
     }
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(PhonetwoActivity.this, PhoneoneActivity.class);
+        startActivity(intent);
+        finish();
+        return;
     }
 
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {

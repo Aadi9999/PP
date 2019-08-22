@@ -11,47 +11,31 @@
         android:gravity="top"
         android:orientation="vertical">
 
-        <ProgressBar
-            android:layout_marginBottom="-8dp"
-            android:layout_marginTop="-8dp"
-            android:layout_width="match_parent"
-            android:layout_height="20dp"
-            android:id="@+id/my_progressBar"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-            android:indeterminate="false"
-            android:max="100"
-            android:layout_gravity="bottom"
-            android:progress="40"/>
 
         <TextView
+            android:layout_marginTop="60dp"
+            style="@style/Parent.headerText2"
+            android:textSize="18sp"
+            android:textColor="#5D5C5C"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="30dp"
             android:layout_marginLeft="30dp"
-            android:layout_marginRight="50dp"
-            android:layout_marginBottom="50dp"
-            android:fontFamily="@font/lato"
-            android:padding="10dp"
-            android:text="What can we call you?"
-            android:textColor="@color/color1"
-            android:textSize="40dp"
-            android:textStyle="bold" />
+            android:text="First Name" />
 
 
         <EditText
             android:id="@+id/name"
-            android:layout_width="280dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal|bottom"
-            android:backgroundTint="#40ffffff"
+            style="@style/Parent.headerText2"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:backgroundTint="#000000"
+            android:layout_marginTop="10dp"
             android:layout_marginBottom="20dp"
-            android:fontFamily="@font/lato"
-            android:textColor="#000"
-            android:hint="John"
             android:inputType="textCapWords"
             android:buttonTint="#000"
-            android:textColorHint="#a4393838"
+            android:paddingBottom="20dp"
             android:textSize="16sp"
             android:visibility="visible" />
 
@@ -60,11 +44,16 @@
         <Button
 
             android:id="@+id/btn_continue"
-            android:layout_width="252dp"
+            android:layout_width="wrap_content"
+            android:paddingTop="18dp"
+            android:paddingLeft="80dp"
+            android:paddingRight="80dp"
+            android:paddingBottom="18dp"
             android:layout_marginTop="30dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:background="@drawable/gradbutton"
+            android:textSize="20dp"
+            android:background="#000000"
             android:fontFamily="@font/lato"
             android:text="CONTINUE"
             android:textColor="#ffff" />

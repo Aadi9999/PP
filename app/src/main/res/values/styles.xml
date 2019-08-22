@@ -166,6 +166,11 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="Parent.headerText2">
+        <item name="android:textColor">@color/contentTextColor</item>
+        <item name="android:textSize">@dimen/headerTextSize</item>
+    </style>
+
     <style name="Parent.headerText.settingsMiniTitle">
         <item name="android:textColor">#5D5C5C</item>
         <item name="android:layout_width">match_parent</item>
