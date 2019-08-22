@@ -19,7 +19,7 @@ public class SplashScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
 
-            Intent i = new Intent(SplashScreen.this, BetweenActivity.class);
+            Intent i = new Intent(SplashScreen.this, PhoneoneActivity.class);
             startActivity(i);
             finish();
 

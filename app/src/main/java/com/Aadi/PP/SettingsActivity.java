@@ -20,7 +20,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         // load settings fragment
         getFragmentManager().beginTransaction().replace(android.R.id.content, new MainPreferenceFragment()).commit();
 
-
     }
 
     public static class MainPreferenceFragment extends PreferenceFragment {

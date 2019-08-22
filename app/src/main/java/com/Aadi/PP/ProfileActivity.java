@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,7 +69,7 @@ public class ProfileActivity extends AppCompatActivity {
     private DatabaseReference usersDb;
 
     private String userId, name, phone, about, sports, profileImageUrl, userSex;
-
+    private int PICK_IMAGE_REQUEST = 1;
     private Uri resultUri;
 
     @Override
@@ -78,7 +79,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         //Allow user to edit name and phone
 
-        final Button mButon = findViewById(R.id.buton);
+        final LinearLayout mButon = findViewById(R.id.buton);
 
         mButon.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -93,7 +94,7 @@ public class ProfileActivity extends AppCompatActivity {
 
 
 
-        final Button mButon3 = findViewById(R.id.buton3);
+        final LinearLayout mButon3 = findViewById(R.id.buton3);
 
         mButon3.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -106,7 +107,7 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
-        final Button mButon4 = findViewById(R.id.buton4);
+        final LinearLayout mButon4 = findViewById(R.id.buton4);
 
         mButon4.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -119,88 +120,7 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
-        final Button mButon5 = findViewById(R.id.buton5);
 
-        mButon5.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-
-                Intent intent = new Intent(ProfileActivity.this, SettingsActivity.class);
-                startActivity(intent);
-                finish();
-                return;
-
-            }
-        });
-
-
-
-
-
-        dl = findViewById(R.id.activity_settings);
-        t = new ActionBarDrawerToggle(this, dl,R.string.Open, R.string.Close);
-
-        dl.addDrawerListener(t);
-        t.syncState();
-        Toolbar toolbar = findViewById(R.id.toolBar);
-        setSupportActionBar(toolbar);
-        ActionBar actionbar = getSupportActionBar();
-        actionbar.setDisplayHomeAsUpEnabled(true);
-        actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
-
-
-
-
-        nv = findViewById(R.id.nv);
-        nv.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int id = item.getItemId();
-                switch(id)
-                {
-                    case R.id.matches:
-                        Intent intent = new Intent(ProfileActivity.this, MatchesFragment.class);
-                        startActivity(intent);
-                        finish();
-                        return true;
-                    case R.id.settings:
-                        Intent intent2 = new Intent(ProfileActivity.this, ProfileActivity.class);
-                        startActivity(intent2);
-                        finish();
-                        return true;
-                    case R.id.browse:
-                        Intent intent3 = new Intent(ProfileActivity.this, MainActivity.class);
-                        startActivity(intent3);
-                        finish();
-                        return true;
-                    case android.R.id.home:
-                        dl.openDrawer(GravityCompat.START);
-                        return true;
-
-                    case R.id.log_out:
-                        new AlertDialog.Builder(ProfileActivity.this)
-                                .setTitle("Logout From SportConnect")
-                                .setMessage("Would you like to Log out?")
-                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        Intent inte = new Intent(ProfileActivity.this, ChooseLoginRegistrationActivity.class);
-                                        mAuth.signOut();
-                                        startActivity(inte);
-                                    }
-                                })
-                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                    }
-                                })
-                                .show();
-
-                }
-
-                return true;
-
-
-            }
-        });
 
 
         mNameField = findViewById(R.id.name);
@@ -219,32 +139,21 @@ public class ProfileActivity extends AppCompatActivity {
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(userId);
         usersDb = FirebaseDatabase.getInstance().getReference().child("Users");
 
-        getUserInfo();
         checkFirstOpen();
+        getUserInfo();
 
 
+        mProfileImage.setOnClickListener(view -> {
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType("image/*");
+            startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
 
-        mConfirm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
-                startActivity(intent);
-                saveUserInformation();
-                Toasty.success(ProfileActivity.this, "New profile picture saved!", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        mProfileImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_PICK);
-                intent.setType("image/*");
-                startActivityForResult(intent, 1);
-            }
         });
 
 
     }
+
+
 
 
     private void checkFirstOpen(){
@@ -267,6 +176,31 @@ public class ProfileActivity extends AppCompatActivity {
 
 
 
+
+    public void updateUserStatus(String state)
+    {
+        String saveCurrentDate, saveCurrentTime;
+
+        Calendar calForDate = Calendar.getInstance();
+        SimpleDateFormat currentDate = new SimpleDateFormat("MMM dd, yyyy");
+        saveCurrentDate = currentDate.format(calForDate.getTime());
+
+        Calendar calForTime = Calendar.getInstance();
+        SimpleDateFormat currentTime = new SimpleDateFormat("hh:mm a");
+        saveCurrentTime = currentTime.format(calForTime.getTime());
+
+        Map currentStateMap = new HashMap();
+        currentStateMap.put("time",saveCurrentTime);
+        currentStateMap.put("date",saveCurrentDate);
+        currentStateMap.put("type",state);
+
+
+        usersDb.child(userId).child("userState")
+                .updateChildren(currentStateMap);
+    }
+
+
+
     private void getUserInfo() {
         mUserDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -276,13 +210,6 @@ public class ProfileActivity extends AppCompatActivity {
                     if(map.get("name")!=null){
                         name = map.get("name").toString();
                         mNameField.setText(name);
-
-                        View header = nv.getHeaderView(0);
-
-                        ImageView img = header.findViewById(R.id.img);
-                        TextView nam = header.findViewById(R.id.nam);
-
-                        nam.setText(name);
                     }
 
                     if(map.get("skill")!=null){
@@ -296,20 +223,7 @@ public class ProfileActivity extends AppCompatActivity {
                     if(map.get("sex")!=null){
                         userSex = map.get("sex").toString();
                     }
-                    View header = nv.getHeaderView(0);
-                    ImageView img = header.findViewById(R.id.img);
-                    Glide.clear(img);
-                    if(map.get("profileImageUrl")!=null){
-                        profileImageUrl = map.get("profileImageUrl").toString();
-                        switch(profileImageUrl){
-                            case "default":
-                                Glide.with(getApplication()).load(R.drawable.profilepic).into(img);
-                                break;
-                            default:
-                                Glide.with(getApplication()).load(profileImageUrl).into(img);
-                                break;
-                        }
-                    }
+
                     Glide.clear(mProfileImage);
                     if(map.get("profileImageUrl")!=null){
                         profileImageUrl = map.get("profileImageUrl").toString();
@@ -334,28 +248,6 @@ public class ProfileActivity extends AppCompatActivity {
 
     }
 
-    public void updateUserStatus(String state)
-    {
-        String saveCurrentDate, saveCurrentTime;
-
-        Calendar calForDate = Calendar.getInstance();
-        SimpleDateFormat currentDate = new SimpleDateFormat("MMM dd, yyyy");
-        saveCurrentDate = currentDate.format(calForDate.getTime());
-
-        Calendar calForTime = Calendar.getInstance();
-        SimpleDateFormat currentTime = new SimpleDateFormat("hh:mm a");
-        saveCurrentTime = currentTime.format(calForTime.getTime());
-
-        Map currentStateMap = new HashMap();
-        currentStateMap.put("time",saveCurrentTime);
-        currentStateMap.put("date",saveCurrentDate);
-        currentStateMap.put("type",state);
-
-
-        usersDb.child(userId).child("userState")
-                .updateChildren(currentStateMap);
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -372,15 +264,7 @@ public class ProfileActivity extends AppCompatActivity {
 
 
     private void saveUserInformation() {
-        name = mNameField.getText().toString();
-        about = mAboutField.getText().toString();
-        sports = mSportsField.getText().toString();
 
-        Map userInfo = new HashMap();
-        userInfo.put("name", name);
-        userInfo.put("about", about);
-        userInfo.put("sports", sports);
-        mUserDatabase.updateChildren(userInfo);
         if(resultUri != null){
             StorageReference filepath = FirebaseStorage.getInstance().getReference().child("profileImages").child(userId);
             Bitmap bitmap = null;
@@ -395,27 +279,17 @@ public class ProfileActivity extends AppCompatActivity {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 20, baos);
             byte[] data = baos.toByteArray();
             UploadTask uploadTask = filepath.putBytes(data);
-            uploadTask.addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    finish();
-                }
-            });
-            uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+            uploadTask.addOnFailureListener(e -> finish());
+            uploadTask.addOnSuccessListener(taskSnapshot -> {
+                Uri downloadUrl = taskSnapshot.getDownloadUrl();
 
+                Map userInfo = new HashMap();
+                userInfo.put("profileImageUrl", downloadUrl.toString());
+                mUserDatabase.updateChildren(userInfo);
 
-                    Map userInfo = new HashMap();
-
-                    mUserDatabase.updateChildren(userInfo);
-
-                    finish();
-                    return;
-                }
+                return;
             });
         }else{
-            finish();
         }
     }
 
@@ -432,9 +306,13 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == 1 && resultCode == Activity.RESULT_OK){
+
             final Uri imageUri = data.getData();
             resultUri = imageUri;
             mProfileImage.setImageURI(resultUri);
+            saveUserInformation();
+            Toasty.success(ProfileActivity.this, "New profile picture saved!", Toast.LENGTH_SHORT).show();
+
         }
     }
 }

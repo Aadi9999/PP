@@ -22,7 +22,7 @@
             android:fontFamily="@font/lato"
             android:padding="10dp"
             android:text="TELL US YOUR NAME"
-            android:textColor="@color/color1"
+            android:textColor="@color/contentTextColor"
             android:textSize="20dp"
             android:textStyle="bold" />
 

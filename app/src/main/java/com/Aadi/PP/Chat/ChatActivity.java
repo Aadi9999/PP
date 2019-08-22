@@ -1,5 +1,6 @@
 package com.Aadi.PP.Chat;
 
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.widget.NestedScrollView;
@@ -12,6 +13,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -85,12 +88,14 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+
         userLastSeen = findViewById(R.id.user_last_seen);
 
         android.support.v7.widget.Toolbar toolbar = findViewById(R.id.toolBar);
 
         setSupportActionBar(toolbar);
-        toolbar.setNavigationIcon(R.drawable.backicon);
+        toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_ios_black_18);
 
 
 

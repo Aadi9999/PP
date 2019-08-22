@@ -1,77 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
-    android:padding="10sp">
-
-    <com.mikhaellopez.circularimageview.CircularImageView
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="10dp"
-        android:background="@drawable/profilepic"
-        android:id="@+id/MatchImage"/>
+    android:padding="30dp">
 
 
-    <LinearLayout
-        android:layout_marginTop="15dp"
-        android:paddingLeft="20sp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_gravity="center">
+        <com.mikhaellopez.circularimageview.CircularImageView
+            android:id="@+id/MatchImage"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            app:civ_border_width="2dp"
+            app:civ_border_color="@color/imageBorderColor"
+            android:src="@drawable/user_dp"
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:weightSum="20"
-            android:orientation="horizontal">
+            android:layout_marginRight="10dp"/>
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Match's Name"
-            android:fontFamily="@font/lato"
-            android:textColor="#000"
-            android:textSize="18dp"
-            android:id="@+id/MatchName"/>
-
-        <ImageView
-            android:layout_marginLeft="10dp"
-            android:id="@+id/sporticon2"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:scaleType="fitCenter" />
-
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/lato"
-            android:textColor="#AAAAAA"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:text="Last seen"
-            android:textSize="12sp"
-            android:id="@+id/user_last_seen"/>
-
-
-
+            android:id="@+id/MatchName"
+            style="@style/Parent.headerText"
+            android:text="Kapil Mohan"
+            android:layout_marginTop="5dp"
+            android:textSize="18sp"
+            android:layout_toRightOf="@id/MatchImage" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:textColor="#fff"
             android:textSize="1dp"
+            android:layout_toRightOf="@id/MatchName"
+            android:layout_below="@id/MatchName"
             android:id="@+id/Matchid"/>
 
+        <ImageView
+            android:layout_marginLeft="10dp"
+            android:id="@+id/sporticon2"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@id/user_last_seen"
+            android:layout_below="@id/MatchName"
+            android:scaleType="fitCenter" />
+
+        <TextView
+            style="@style/Parent.headerText"
+            android:text="Edit personal details"
+            android:textSize="16sp"
+            android:textColor="#5D5C5C"
+            android:id="@+id/user_last_seen"
+            android:layout_below="@id/MatchName"
+            android:layout_toRightOf="@id/MatchImage"/>
+
+        <ImageView
+            style="@style/viewParent"
+            android:src="@drawable/ic_more"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"/>
 
 
-    </LinearLayout>
-
-
-
-</LinearLayout>
+</RelativeLayout>

@@ -144,24 +144,8 @@
 
     </android.support.constraint.ConstraintLayout>
 
-    <android.support.design.widget.NavigationView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        app:menu="@menu/navigation_menu"
-        android:theme="@style/NavigationView"
-        android:layout_gravity="start"
-        app:headerLayout="@layout/nav_header"
-        android:id="@+id/nv">
-
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:layout_gravity="bottom|center"
-            android:background="@drawable/sc"/>
 
 
-
-    </android.support.design.widget.NavigationView>
 
 
 

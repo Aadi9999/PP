@@ -121,7 +121,6 @@ public class SignupFragment3 extends Fragment {
                         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                         fragmentTransaction.replace(android.R.id.content, fragment);
-                        fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
                         fragmentTransaction.addToBackStack(null);
                         fragmentTransaction.commit();
 

@@ -10,7 +10,7 @@
     android:layout_height="130dp"
         android:id="@+id/img"
     android:layout_marginBottom="15dp"
-    android:layout_marginTop="30dp"
+    android:layout_marginTop="50dp"
     android:background="@drawable/profilepic"/>
 
     <TextView

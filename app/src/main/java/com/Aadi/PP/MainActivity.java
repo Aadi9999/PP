@@ -99,63 +99,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             actionbar.setDisplayHomeAsUpEnabled(true);
             actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
-            nv = findViewById(R.id.nv);
-            nv.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                    int id = item.getItemId();
-                    switch(id)
-                    {
-                        case R.id.matches:
-                            Intent intent = new Intent(MainActivity.this, MatchesFragment.class);
-                            startActivity(intent);
-                            finish();
-                            return true;
-                        case R.id.settings:
-                            Intent intent2 = new Intent(MainActivity.this, MapFragment.class);
-                            startActivity(intent2);
-                            finish();
-                            return true;
-                        case R.id.browse:
-                            Intent intent3 = new Intent(MainActivity.this, MainActivity.class);
-                            startActivity(intent3);
-                            finish();
-                            return true;
-                        case android.R.id.home:
-                            dl.openDrawer(GravityCompat.START);
-                            return true;
 
-                        case R.id.log_out:
-                            new AlertDialog.Builder(MainActivity.this)
-                                    .setTitle("Logout From SportConnect")
-                                    .setMessage("Would you like to Log out?")
-                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            updateUserStatus("offline");
-                                            Intent inte = new Intent(MainActivity.this, ChooseLoginRegistrationActivity.class);
-                                            sharePrefObje = getSharedPreferences("PREFERENCENAME", MODE_PRIVATE);
-                                            SharedPreferences.Editor editor = sharePrefObje.edit();
-                                            editor.putBoolean("isLoginKey",false);
-                                            editor.commit();
-                                            FirebaseAuth.getInstance().signOut();
-                                            startActivity(inte);
-                                            finish();
-                                        }
-                                    })
-                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.dismiss();
-                                        }
-                                    })
-                                    .show();
-
-                    }
-
-                    return true;
-
-
-                }
-            });
 
 
         usersDb = FirebaseDatabase.getInstance().getReference().child("Users");

@@ -28,14 +28,17 @@
     <string name="title_17">Snooker</string>
     <string name="title_18">Archery</string>
 
+
     <string name="text_1">Get Started</string>
     <string name="text_2">Next</string>
     <string name="text_3">Favourite Tennis</string>
     <string name="text_4">Favourite Cricket</string>
 
+    <string name="title_activity_profile">Profile</string>
+    <string name="action_settings">Settings</string>
+
     //Settings
     <string name="Username">Username</string>
-    <string name="action_settings">Settings</string>
     <string name="title_activity_settings">Settings</string>
     <string name="pref_title_ringtone">Ringtone</string>
     <string name="pref_ringtone_silent">Silent</string>

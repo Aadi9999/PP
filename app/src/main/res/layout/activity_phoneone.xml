@@ -17,7 +17,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:layout_marginLeft="30dp"
             android:layout_marginTop="50dp"
             android:layout_marginRight="50dp"
             android:fontFamily="@font/lato"
@@ -31,12 +31,11 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginRight="20dp"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="30dp"
             android:layout_marginTop="30dp"
             android:orientation="horizontal">
 
             <com.hbb20.CountryCodePicker
-                android:layout_marginTop="3dp"
                 android:id="@+id/ccp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
@@ -53,24 +52,6 @@
 
 
         </LinearLayout>
-
-        <EditText
-            android:id="@+id/enterverification"
-            android:layout_width="match_parent"
-            android:layout_gravity="center"
-            android:fontFamily="@font/lato"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="50dp"
-            android:visibility="invisible"
-            android:layout_marginLeft="50dp"
-            android:digits="0123456789"
-            android:drawablePadding="10dp"
-            android:hint="enter verification code"
-            android:inputType="phone"
-            android:maxLength="10" />
-
-
-
 
 
         <TextView
@@ -101,21 +82,6 @@
             android:textColor="#ffff"
             android:textAllCaps="false"/>
 
-
-        <Button
-            android:id="@+id/buttonSignIn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:layout_below="@id/editTextMobile"
-            android:layout_centerHorizontal="true"
-            android:layout_gravity="center"
-            android:background="@drawable/gradbutton"
-            android:fontFamily="@font/lato"
-            android:text="VERIFY"
-            android:textColor="#ffff"
-            android:visibility="invisible"
-            android:textAllCaps="false" />
 
     </LinearLayout>
 </LinearLayout>
