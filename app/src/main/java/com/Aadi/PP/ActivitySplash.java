@@ -2,8 +2,10 @@ package com.Aadi.PP;
 
 import android.content.Intent;
 import android.os.Handler;
-import android.support.app.AppCompatActivity;
+
 import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class ActivitySplash extends AppCompatActivity {
 

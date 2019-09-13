@@ -1,21 +1,19 @@
 package com.Aadi.PP.Pager;
 
 
-import android.graphics.Color;
-import android.support.v4.view.PagerAdapter;
-import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.cardview.widget.CardView;
+import androidx.viewpager.widget.PagerAdapter;
+
 import com.Aadi.PP.R;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class CardPagerAdapter extends PagerAdapter implements CardAdapter {
 

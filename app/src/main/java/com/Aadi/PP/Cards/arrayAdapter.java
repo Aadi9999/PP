@@ -2,7 +2,7 @@ package com.Aadi.PP.Cards;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.design.widget.NavigationView;
+
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.Aadi.PP.MainActivity;
 import com.bumptech.glide.Glide;
 import com.Aadi.PP.R;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;

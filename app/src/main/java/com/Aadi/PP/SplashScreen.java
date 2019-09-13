@@ -3,9 +3,11 @@ package com.Aadi.PP;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.Aadi.PP.Intro.SliderActivity;
 import com.google.firebase.auth.FirebaseAuth;
 
 
@@ -19,7 +21,7 @@ public class SplashScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
 
-            Intent i = new Intent(SplashScreen.this, PhoneoneActivity.class);
+            Intent i = new Intent(SplashScreen.this, SliderActivity.class);
             startActivity(i);
             finish();
 

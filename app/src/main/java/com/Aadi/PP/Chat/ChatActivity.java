@@ -1,37 +1,38 @@
 package com.Aadi.PP.Chat;
 
-import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v4.widget.NestedScrollView;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.widget.NestedScrollView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.PorterDuff;
+import android.media.ExifInterface;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.view.menu.MenuView;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
-import com.Aadi.PP.Cards.cards;
-import com.Aadi.PP.ChooseLoginRegistrationActivity;
-import com.Aadi.PP.LoginActivity;
-import com.Aadi.PP.MainActivity;
-import com.Aadi.PP.MapFragment;
-import com.Aadi.PP.Matches.MatchesFragment;
-import com.Aadi.PP.RegistrationActivity;
 import com.Aadi.PP.mActivity;
-import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -44,6 +45,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.Aadi.PP.R;
 import com.mikhaellopez.circularimageview.CircularImageView;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -52,6 +55,9 @@ import java.util.List;
 import java.util.Map;
 
 import es.dmoral.toasty.Toasty;
+
+import static com.bumptech.glide.load.resource.bitmap.TransformationUtils.rotateImage;
+import static com.webianks.easy_feedback.components.Utils.calculateInSampleSize;
 
 public class ChatActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
@@ -79,7 +85,11 @@ public class ChatActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
 
-    private String currentUserID, matchId, chatId, matchName;
+    private String currentUserID, matchId, chatId, matchName, userId;
+
+    private DatabaseReference mUserDatabase;
+
+    private Toolbar toolbar;
 
     DatabaseReference mDatabaseUser, mDatabaseChat, usersDb, RootRef, mDatabaseUser1;
 
@@ -88,15 +98,20 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 
         userLastSeen = findViewById(R.id.user_last_seen);
 
-        android.support.v7.widget.Toolbar toolbar = findViewById(R.id.toolBar);
+        toolbar = findViewById(R.id.toolBar);
 
         setSupportActionBar(toolbar);
         toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_ios_black_18);
 
+
+        mAuth = FirebaseAuth.getInstance();
+        userId = mAuth.getCurrentUser().getUid();
+        mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(userId);
 
 
         mMatchName = findViewById(R.id.MatchName);
@@ -117,6 +132,30 @@ public class ChatActivity extends AppCompatActivity {
         DisplayUserInfo();
         DisplayRecieverInfo();
 
+        mUserDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                    Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
+
+                    if (dataSnapshot.child("New Notification").getValue() != null) {
+
+
+                        Map newNotification = new HashMap();
+                        newNotification.put("New Notification", "false");
+
+                        mUserDatabase
+                                .updateChildren(newNotification);
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
 
         Userreport = RootRef.child("Users").child(matchId).child("Report");
@@ -138,6 +177,25 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 sendMessage();
+
+                RootRef.child("Users").child(matchId).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists())
+                        {
+                            Map newNotification = new HashMap();
+                            newNotification.put("New Notification", "true");
+
+                            RootRef.child("Users").child(matchId)
+                                    .updateChildren(newNotification);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
 
                 mScrollview.postDelayed(new Runnable() {
                     @Override
@@ -189,6 +247,7 @@ public class ChatActivity extends AppCompatActivity {
                     }
                     Glide.with(getApplicationContext()).load(profileImageUrl).into(mMatchImage);
 
+
                     matchName = dataSnapshot.child("name").getValue().toString();
                     mMatchName.setText(matchName);
 
@@ -201,6 +260,8 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
     }
+
+
 
 
 

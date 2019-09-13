@@ -2,41 +2,29 @@ package com.Aadi.PP;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
+
+
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.Toast;
+import android.widget.Toolbar;
 
-import com.Aadi.PP.Pager.PagerActivity;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
+import com.Aadi.PP.Chat.ChatActivity;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import es.dmoral.toasty.Toasty;
-
-import static android.content.Context.MODE_PRIVATE;
 
 
 public class SignupFragment1 extends Fragment {
@@ -46,6 +34,8 @@ public class SignupFragment1 extends Fragment {
     private FirebaseAuth mAuth;
     private DatabaseReference mUserDatabase;
     private String currentUId;
+    private Fragment fragment;
+    private Toolbar toolbar;
 
     @Nullable
     @Override
@@ -58,10 +48,9 @@ public class SignupFragment1 extends Fragment {
 
         Savesettings();
 
+
         return rootView;
     }
-
-
 
 
 
@@ -93,7 +82,7 @@ public class SignupFragment1 extends Fragment {
 
 
 
-                    Fragment fragment = new SignupFragment2();
+                    fragment = new SignupFragment2();
                     FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                     fragmentTransaction.replace(android.R.id.content, fragment);
@@ -106,5 +95,11 @@ public class SignupFragment1 extends Fragment {
             }
 
         });
+
+
+
+
     }
+
+
 }

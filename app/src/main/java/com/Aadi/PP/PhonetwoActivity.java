@@ -1,15 +1,17 @@
 package com.Aadi.PP;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.widget.Toolbar;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -38,24 +40,27 @@ public class PhonetwoActivity extends AppCompatActivity {
     private String mVerificationId;
     private FirebaseAuth mAuth;
     private OtpTextView otpTextView;
+    private Toolbar toolbar;
+    private String mobile;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_phonetwo);
-
         //initializing objects
         mAuth = FirebaseAuth.getInstance();
 
         //getting mobile number from the previous activity
         //and sending the verification code to the number
         Intent intent = getIntent();
-        String mobile = intent.getStringExtra("mobile");
+        mobile = intent.getStringExtra("mobile");
         sendVerificationCode(mobile);
-        android.support.v7.widget.Toolbar toolbar = findViewById(R.id.toolBar);
-        setSupportActionBar(toolbar);
+        toolbar = findViewById(R.id.toolBar);
+        setActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
         toolbar.setNavigationIcon(R.drawable.baseline_arrow_back_ios_black_18);
-        getSupportActionBar().setTitle("");
+        getActionBar().setTitle("");
 
 
         otpTextView = findViewById(R.id.otp_view);
@@ -148,12 +153,23 @@ public class PhonetwoActivity extends AppCompatActivity {
         return;
     }
 
+    public boolean onOptionsItemSelected(MenuItem item){
+        Intent myIntent = new Intent(getApplicationContext(), PhoneoneActivity.class);
+        startActivityForResult(myIntent, 0);
+        return true;
+    }
+
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(PhonetwoActivity.this, task -> {
                     if (task.isSuccessful()) {
 
-                    Intent intent2 = new Intent(PhonetwoActivity.this, SignupActivity.class);
+                    SharedPreferences.Editor editor = getSharedPreferences("ph_num", MODE_PRIVATE).edit();
+                    editor.putString("myNum", mobile);
+                    editor.apply();
+
+
+                    Intent intent2 = new Intent(PhonetwoActivity.this, BetweenActivity.class);
                     startActivity(intent2);
                     finish();
                     return;
@@ -170,7 +186,6 @@ public class PhonetwoActivity extends AppCompatActivity {
                             message = "Invalid code entered";
                         }
 
-                        Toasty.error(PhonetwoActivity.this, message, Toast.LENGTH_SHORT).show();
                     }
                 });
     }

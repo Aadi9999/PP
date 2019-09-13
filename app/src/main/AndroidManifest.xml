@@ -7,6 +7,8 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
 
     <application
         android:allowBackup="false"
@@ -23,8 +25,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".mActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.ActionBar.Transparent"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ChooseLoginRegistrationActivity"
             android:screenOrientation="portrait" />
@@ -55,7 +56,11 @@
             android:name=".PhonetwoActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".BetweenActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".PhoneoneActivity"
+            android:windowSoftInputMode="adjustResize"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ProfileActivity"
@@ -80,9 +85,6 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ForgotPasswordActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".SkillActivity"
             android:screenOrientation="portrait" />
 
         <meta-data

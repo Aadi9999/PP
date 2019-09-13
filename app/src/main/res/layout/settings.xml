@@ -19,8 +19,6 @@
             android:text="Settings" />
 
         <RelativeLayout
-            android:id="@+id/editprofile"
-            android:background="?android:attr/selectableItemBackground"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -30,12 +28,12 @@
                 android:layout_height="60dp"
                 app:civ_border_width="2dp"
                 app:civ_border_color="@color/imageBorderColor"
-                android:src="@drawable/user_dp"
-                android:layout_marginTop="15dp"
+                android:src="@drawable/man"
+                android:layout_marginTop="25dp"
                 android:layout_marginRight="10dp"/>
 
             <TextView
-                android:id="@+id/usernameTextView"
+                android:id="@+id/name"
                 style="@style/Parent.headerText"
                 android:text="Kapil Mohan"
                 android:textSize="18sp"
@@ -44,25 +42,24 @@
 
             <TextView
                 style="@style/Parent.headerText"
-                android:text="Edit personal details"
                 android:textSize="16sp"
+                android:id="@+id/EditNumber"
                 android:textColor="#5D5C5C"
-                android:layout_below="@id/usernameTextView"
+                android:layout_below="@id/name"
                 android:layout_toRightOf="@id/profileCircleImageView"/>
 
+
             <ImageView
-                style="@style/viewParent"
-                android:src="@drawable/ic_more"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"/>
+                android:layout_height="20dp"
+                android:layout_width="20dp"
+                android:layout_toRightOf="@id/profileCircleImageView"
+                android:layout_below="@+id/EditNumber"
+                android:id="@+id/EditSports"
+                android:background="?android:attr/selectableItemBackground"
+                android:text="Edit Name" />
 
         </RelativeLayout>
 
-        <Switch
-            android:id="@+id/darkModeSwitch"
-            style="@style/settingsText"
-            android:drawableLeft="@drawable/ic_dark_mode"
-            android:text="Dark Mode" />
 
         <TextView
             style="@style/Parent.headerText.settingsMiniTitle"
@@ -70,13 +67,30 @@
 
         <TextView
             style="@style/Parent.headerText.settingsTextIcon"
+            android:id="@+id/editprofile"
+            android:text="Change Profile photo"
+            android:background="?android:attr/selectableItemBackground" />
+
+
+        <TextView
+            style="@style/Parent.headerText.settingsTextIcon"
+            android:drawableLeft="@drawable/ic_languages"
+            android:id="@+id/EditName"
+            android:background="?android:attr/selectableItemBackground"
+            android:text="Edit Name" />
+
+        <TextView
+            style="@style/Parent.headerText.settingsTextIcon"
+            android:id="@+id/Pager"
             android:drawableLeft="@drawable/ic_edit_profile"
-            android:text="Edit Profile" />
+            android:background="?android:attr/selectableItemBackground"
+            android:text="Change Favorite Sport" />
 
         <TextView
             style="@style/Parent.headerText.settingsTextIcon"
             android:drawableLeft="@drawable/ic_edit_password"
             android:layout_marginTop="10dp"
+            android:background="?android:attr/selectableItemBackground"
             android:text="Change Password" />
 
         <TextView
@@ -85,24 +99,34 @@
 
         <Switch
             style="@style/settingsText"
-            android:checked="true"
+            android:checked="false"
+            android:id="@+id/notif"
+            android:background="?android:attr/selectableItemBackground"
             android:drawableLeft="@drawable/ic_notifications"
             android:text="Notifications" />
 
         <TextView
             style="@style/Parent.headerText.settingsMiniTitle"
-            android:text="Regional"/>
-
-        <TextView
-            style="@style/Parent.headerText.settingsTextIcon"
-            android:drawableLeft="@drawable/ic_languages"
-            android:text="Language" />
+            android:text="Logout"/>
 
         <TextView
             android:id="@+id/Logout"
+            android:background="?android:attr/selectableItemBackground"
             style="@style/Parent.headerText.settingsTextIcon"
             android:drawableLeft="@drawable/ic_logout"
             android:text="Logout" />
+
+        <TextView
+            android:layout_marginTop="10dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:textColor="@color/colorAccent"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:id="@+id/Delete"
+            android:gravity="center"
+            android:background="?android:attr/selectableItemBackground"
+            android:text="DELETE ACCOUNT" />
 
 
         <TextView

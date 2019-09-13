@@ -3,9 +3,6 @@ package com.Aadi.PP.Intro;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -17,9 +14,13 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
 import com.Aadi.PP.BuildConfig;
 import com.Aadi.PP.ChooseLoginRegistrationActivity;
-import com.Aadi.PP.MainActivity;
+import com.Aadi.PP.PhoneoneActivity;
 import com.Aadi.PP.R;
 
 public class SliderActivity extends AppCompatActivity {
@@ -35,16 +36,13 @@ public class SliderActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
         setContentView(R.layout.activity_slider);
 
         // find view id
         initView();
 
-        checkFirstRun();
+        //checkFirstRun();
+
         
         // adding bottom dots
         addBottomDots(0);
@@ -174,7 +172,7 @@ public class SliderActivity extends AppCompatActivity {
         }
 
         if (dots.length > 0)
-            dots[currentPage].setTextColor(getResources().getColor(R.color.color1));
+            dots[currentPage].setTextColor(getResources().getColor(R.color.colorPrimaryDark));
     }
 
 

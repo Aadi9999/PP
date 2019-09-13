@@ -3,11 +3,13 @@ package com.Aadi.PP;
 import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.gun0912.tedpermission.PermissionListener;
@@ -33,38 +35,17 @@ public class PhoneoneActivity extends AppCompatActivity {
         ccp = findViewById(R.id.ccp);
         editTextMobile = findViewById(R.id.editTextMobile);
 
+
+
         SharedPreferences prefs = getSharedPreferences("PREFERENCENAME", MODE_PRIVATE);
         Intent intent = null;
         if (prefs.getBoolean("isLoginKey", false)){ //user logged in before
             intent = new Intent(PhoneoneActivity.this, mActivity.class);
             startActivity(intent);
+            finish();
         } else {
 
         }
-
-        PermissionListener permissionlistener = new PermissionListener() {
-            @Override
-            public void onPermissionGranted() {
-
-            }
-
-            @Override
-            public void onPermissionDenied(List<String> deniedPermissions) {
-                Toasty.error(PhoneoneActivity.this, "Please turn on Location permission to use SportConnect", Toast.LENGTH_SHORT).show();
-                Intent inte = new Intent(PhoneoneActivity.this, ChooseLoginRegistrationActivity.class);
-                mAuth.signOut();
-                startActivity(inte);
-
-            }
-
-        };
-
-        TedPermission.with(this)
-                .setPermissionListener(permissionlistener)
-                .setDeniedMessage("We need location permission to use SportConnect\n\nPlease turn on permissions at [Setting] > [Permission]")
-                .setPermissions(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
-                .check();
-
 
         findViewById(R.id.buttonContinue).setOnClickListener(new View.OnClickListener() {
             @Override

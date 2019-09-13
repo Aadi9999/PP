@@ -9,12 +9,14 @@ public class MatchesObject {
     private String profileImageUrl;
     private String userState;
     private String sports;
-    public MatchesObject (String userId, String name, String profileImageUrl, String userState, String sports){
+    private String notif;
+    public MatchesObject (String userId, String name, String profileImageUrl, String userState, String sports, String notif){
         this.userId = userId;
         this.name = name;
         this.profileImageUrl = profileImageUrl;
         this.userState = userState;
         this.sports = sports;
+        this.notif = notif;
     }
 
     public String getUserId(){
@@ -41,6 +43,11 @@ public class MatchesObject {
         this.sports = sports;
     }
 
+
+    public String getNotif(){ return notif; }
+    public void setNotif(String notif){
+        this.notif = notif;
+    }
 
     public String getProfileImageUrl(){
         return profileImageUrl;

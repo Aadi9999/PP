@@ -1,30 +1,27 @@
 package com.Aadi.PP;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.PorterDuff;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.ProgressBar;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.viewpager.widget.ViewPager;
 
 import com.Aadi.PP.Pager.CardFragmentPagerAdapter;
 import com.Aadi.PP.Pager.CardItem;
 import com.Aadi.PP.Pager.CardPagerAdapter;
 import com.Aadi.PP.Pager.CustomAnimationsUtils;
-import com.Aadi.PP.Pager.PagerActivity;
 import com.Aadi.PP.Pager.ShadowTransformer;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -36,11 +33,14 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.Map;
 
+import static android.content.Context.MODE_PRIVATE;
+
 
 public class SignupFragment3 extends Fragment {
 
     private Button mButton;
     private ViewPager mViewPager;
+    private SharedPreferences sharePrefObje;
 
     private CardPagerAdapter mCardAdapter;
     private ShadowTransformer mCardShadowTransformer;
@@ -52,7 +52,9 @@ public class SignupFragment3 extends Fragment {
     private FrameLayout mFramelayout;
     private DatabaseReference mUserDatabase;
 
+    private DatabaseReference usersDb;
     private boolean mShowingFragments = false;
+    private String currentUId2, phoneNum;
 
     @Nullable
     @Override
@@ -62,6 +64,11 @@ public class SignupFragment3 extends Fragment {
         mViewPager = rootView.findViewById(R.id.viewPager);
         mButton = rootView.findViewById(R.id.button);
 
+        currentUId2 = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        usersDb = FirebaseDatabase.getInstance().getReference().child("Users");
+
+        SharedPreferences prefs2 = getContext().getSharedPreferences("ph_num", MODE_PRIVATE);
+        phoneNum = prefs2.getString("myNum", null);
 
         animateIn();
 
@@ -114,12 +121,15 @@ public class SignupFragment3 extends Fragment {
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        Fragment fragment = new SignupFragment4();
-                        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                        fragmentTransaction.replace(android.R.id.content, fragment);
-                        fragmentTransaction.addToBackStack(null);
-                        fragmentTransaction.commit();
+                        sharePrefObje = getActivity().getSharedPreferences("PREFERENCENAME", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharePrefObje.edit();
+                        editor.putBoolean("isLoginKey",true);
+                        editor.commit();
+
+                        Intent intent = new Intent(getActivity(), mActivity.class);
+                        startActivity(intent);
+                        getActivity().finish();
+                        return;
 
 
                     }
@@ -189,6 +199,13 @@ public class SignupFragment3 extends Fragment {
 
 
     private void saveUserInformation() {
+
+        SharedPreferences prefs2 = getContext().getSharedPreferences("ph_num", MODE_PRIVATE);
+        phoneNum = prefs2.getString("myNum", null);
+        Map currentPhoneMap = new HashMap();
+        currentPhoneMap.put("phone", phoneNum);
+        usersDb.child(currentUId2)
+                .updateChildren(currentPhoneMap);
 
         int position = mViewPager.getCurrentItem();
         Map userInfo = new HashMap();

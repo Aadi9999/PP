@@ -1,35 +1,26 @@
 package com.Aadi.PP;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
+
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.Toast;
 
-import com.Aadi.PP.Pager.PagerActivity;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import es.dmoral.toasty.Toasty;
 
 
 public class SignupFragment2 extends Fragment {
@@ -61,14 +52,10 @@ public class SignupFragment2 extends Fragment {
                 final String name = mName.getText().toString();
 
 
-                if (name.isEmpty() || name.length() < 3) {
+                if (name.isEmpty() || name.length() < 4) {
                     mName.setError("Username must be at least 3 characters");
                 } else {
                     mName.setError(null);
-                }
-
-
-                if (!name.isEmpty()) {
                     String userId = mAuth.getCurrentUser().getUid();
                     DatabaseReference currentUserDb = FirebaseDatabase.getInstance().getReference().child("Users").child(userId);
                     Map userInfo = new HashMap<>();
@@ -82,8 +69,8 @@ public class SignupFragment2 extends Fragment {
                     fragmentTransaction.addToBackStack(null);
                     fragmentTransaction.commit();
                     return;
-
                 }
+
 
             }
 

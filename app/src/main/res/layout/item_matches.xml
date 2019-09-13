@@ -15,7 +15,7 @@
             android:layout_height="60dp"
             app:civ_border_width="2dp"
             app:civ_border_color="@color/imageBorderColor"
-            android:src="@drawable/user_dp"
+            android:src="@drawable/man"
             android:layout_marginRight="10dp"/>
 
         <TextView
@@ -37,9 +37,19 @@
 
         <ImageView
             android:layout_marginLeft="10dp"
+            android:id="@+id/notificon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@id/user_last_seen"
+            android:scaleType="fitCenter" />
+
+        <ImageView
+            android:layout_marginLeft="10dp"
             android:id="@+id/sporticon2"
             android:layout_width="20dp"
             android:layout_height="20dp"
+            android:layout_marginTop="5dp"
             android:layout_toRightOf="@id/user_last_seen"
             android:layout_below="@id/MatchName"
             android:scaleType="fitCenter" />
@@ -48,6 +58,7 @@
             style="@style/Parent.headerText"
             android:text="Edit personal details"
             android:textSize="12sp"
+            android:layout_marginTop="5dp"
             android:textColor="#5D5C5C"
             android:id="@+id/user_last_seen"
             android:layout_below="@id/MatchName"
@@ -56,6 +67,7 @@
         <ImageView
             style="@style/viewParent"
             android:src="@drawable/ic_more"
+            android:layout_marginTop="5dp"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"/>
 

@@ -10,7 +10,7 @@
     tools:context="com.Aadi.PP.Chat.ChatActivity">
 
 
-    <android.support.v4.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -18,14 +18,14 @@
         android:layout_below="@+id/toolBar"
         android:layout_marginBottom="12dp">
 
-        <android.support.v7.widget.RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:scrollbars="vertical">
 
-        </android.support.v7.widget.RecyclerView>
-    </android.support.v4.widget.NestedScrollView>
+        </androidx.recyclerview.widget.RecyclerView>
+    </androidx.core.widget.NestedScrollView>
 
 
     <LinearLayout
@@ -67,17 +67,12 @@
 
     </LinearLayout>
 
-    <android.support.v7.widget.Toolbar
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_width="match_parent"
-        android:paddingTop="10dp"
-        android:layout_height="66dp"
-        android:background="#fff"
-        android:elevation="2dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolBar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        style="@style/HeaderBar"
+        android:elevation="4dp"
         >
 
         <RelativeLayout
@@ -93,7 +88,7 @@
                 android:layout_height="40dp"
                 app:civ_border_width="2dp"
                 app:civ_border_color="@color/imageBorderColor"
-                android:src="@drawable/user_dp"
+                android:background="@drawable/man"
                 android:layout_marginRight="10dp"/>
 
             <TextView
@@ -132,7 +127,7 @@
 
         </RelativeLayout>
 
-        </android.support.v7.widget.Toolbar>
+        </androidx.appcompat.widget.Toolbar>
 
 </RelativeLayout>
 

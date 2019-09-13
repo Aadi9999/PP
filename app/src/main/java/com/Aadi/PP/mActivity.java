@@ -1,36 +1,40 @@
 package com.Aadi.PP;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.preference.Preference;
-import android.preference.PreferenceFragment;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatDelegate;
-import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.Button;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentManager;
 
 import com.Aadi.PP.Matches.MatchesFragment;
-import com.bumptech.glide.Glide;
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.GroundOverlay;
+import com.google.android.gms.maps.model.GroundOverlayOptions;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.webianks.easy_feedback.EasyFeedback;
+import com.onesignal.OneSignal;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -39,52 +43,114 @@ import java.util.Map;
 
 import im.delight.android.location.SimpleLocation;
 
-public class mActivity extends AppCompatActivity{
+public class mActivity extends AppCompatActivity {
     private DrawerLayout drawer;
     private NavigationView navigationView;
-    private String name, currentUId, profileImageUrl;
+    private String name, currentUId, profileImageUrl, userId;
     private DatabaseReference usersDb;
+    private FirebaseAuth mAuth;
+    private DatabaseReference mUserDatabase;
+
     private Toolbar toolbar;
     private SharedPreferences sharePrefObje;
     private SimpleLocation location;
     private BottomNavigationView bottomNavigationView;
-
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            Fragment fragment;
-            switch (item.getItemId()) {
-                case R.id.Connects:
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                            new MatchesFragment()).commit();
-                    break;
-                case R.id.Settings:
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                            new SettingsAc()).commit();
-                    break;
-                case R.id.Home:
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                            new MapFragment()).commit();
-                    break;
-            }
-            return false;
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity);
 
+        mAuth = FirebaseAuth.getInstance();
+        userId = mAuth.getCurrentUser().getUid();
+        mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(userId);
+
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-            bottomNavigationView = findViewById(R.id.navigation);
-            bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        AHBottomNavigation bottomNavigation = (AHBottomNavigation) findViewById(R.id.navigation);
+
+        // Create items
+            AHBottomNavigationItem item1 = new AHBottomNavigationItem("Connects", R.drawable.users, R.color.whiteTextColor);
+            AHBottomNavigationItem item2 = new AHBottomNavigationItem("Home", R.drawable.home, R.color.whiteTextColor);
+            AHBottomNavigationItem item3 = new AHBottomNavigationItem("Settings", R.drawable.settings, R.color.whiteTextColor);
+
+        // Add items
+            bottomNavigation.addItem(item1);
+            bottomNavigation.addItem(item2);
+            bottomNavigation.addItem(item3);
+
+        // Set background color
+        bottomNavigation.setDefaultBackgroundColor(Color.WHITE);
+        bottomNavigation.setAccentColor(Color.parseColor("#000000"));
+        bottomNavigation.setInactiveColor(Color.parseColor("#747474"));
+
+
+
+        // Manage titles
+            bottomNavigation.setTitleState(AHBottomNavigation.TitleState.ALWAYS_SHOW);
+
+
+        // Set current item programmatically
+            bottomNavigation.setCurrentItem(1);
+
+
+        mUserDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+         @Override
+         public void onDataChange(DataSnapshot dataSnapshot) {
+             if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                 Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
+
+                 if (dataSnapshot.child("New Notification").getValue() != null) {
+                     if (dataSnapshot.child("New Notification").getValue().equals("true")){
+                         bottomNavigation.setNotification("1", 0);
+
+                     }
+                     else {
+                         bottomNavigation.setNotification("0", 0);
+                     }
+
+
+                 }
+
+             }
+         }
+
+         @Override
+         public void onCancelled(DatabaseError databaseError) {
+
+         }
+     });
 
 
 
 
+
+        // Set listener
+        bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
+            @Override
+            public boolean onTabSelected(int position, boolean wasSelected) {
+                //show fragment
+                if (position==0)
+                {
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                            new MatchesFragment()).commit();
+
+                }else  if (position==1)
+                {
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                            new MapFragment()).commit();
+
+                }else  if (position==2)
+                {
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                            new SettingsFragment()).commit();
+
+                }
+
+                return true;
+            }
+
+        });
 
         usersDb = FirebaseDatabase.getInstance().getReference().child("Users");
         currentUId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -114,6 +180,8 @@ public class mActivity extends AppCompatActivity{
 
 
 
+
+
     public void updateUserStatus(String state)
     {
         String saveCurrentDate, saveCurrentTime;
@@ -136,14 +204,32 @@ public class mActivity extends AppCompatActivity{
                 .updateChildren(currentStateMap);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        updateUserStatus("online");
+    }
 
     @Override
-    public void onBackPressed() {
+    protected void onPause() {
+        super.onPause();
 
-            Intent intent = new Intent(Intent.ACTION_MAIN);
-            intent.addCategory(Intent.CATEGORY_HOME);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-        }
+        updateUserStatus("offline");
+    }
+
+
+
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+
+        super.onActivityResult(requestCode,resultCode,data);
+
+    }
+
+
     }
 

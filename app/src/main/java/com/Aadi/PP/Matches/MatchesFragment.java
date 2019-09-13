@@ -1,21 +1,7 @@
 package com.Aadi.PP.Matches;
 
 
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,10 +10,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.Aadi.PP.ChooseLoginRegistrationActivity;
-import com.Aadi.PP.MainActivity;
-import com.Aadi.PP.ProfileActivity;
-import com.bumptech.glide.Glide;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -85,6 +74,7 @@ public class MatchesFragment extends Fragment {
         UserLast = view.findViewById(R.id.user_last_seen);
 
 
+
         mRecyclerView = view.findViewById(R.id.recyclerView);
         mRecyclerView.setNestedScrollingEnabled(false);
         mRecyclerView.setHasFixedSize(true);
@@ -92,6 +82,8 @@ public class MatchesFragment extends Fragment {
         mRecyclerView.setLayoutManager(mMatchesLayoutManager);
         mMatchesAdapter = new MatchesAdapter(getDataSetMatches(), getActivity());
         mRecyclerView.setAdapter(mMatchesAdapter);
+
+
 
         getUserMatchId();
 
@@ -192,12 +184,16 @@ public class MatchesFragment extends Fragment {
                     String name = "";
                     String userState = "";
                     String profileImageUrl = "";
+                    String notif = "";
                     String sports = null;
                     if(dataSnapshot.child("name").getValue()!=null){
                         name = dataSnapshot.child("name").getValue().toString();
                     }
                     if(dataSnapshot.child("sports").getValue()!=null){
                         sports = dataSnapshot.child("sports").getValue().toString();
+                    }
+                    if(dataSnapshot.child("New Notification").getValue()!=null){
+                        notif = dataSnapshot.child("sports").getValue().toString();
                     }
                     if(dataSnapshot.child("userState").getValue()!=null){
                         final String type = dataSnapshot.child("userState").child("type").getValue().toString();
@@ -212,7 +208,7 @@ public class MatchesFragment extends Fragment {
                         }
                         else
                         {
-                            userState =("last seen:  " + lastTime + "  " + lastDate);
+                            userState =(lastTime + "  " + lastDate);
                         }
                     }
                     if(dataSnapshot.child("profileImageUrl").getValue()!=null){
@@ -220,7 +216,7 @@ public class MatchesFragment extends Fragment {
                     }
 
 
-                    MatchesObject obj = new MatchesObject(userId, name, profileImageUrl, userState, sports);
+                    MatchesObject obj = new MatchesObject(userId, name, profileImageUrl, userState, sports, notif);
                     resultsMatches.add(obj);
                     mMatchesAdapter.notifyDataSetChanged();
                 }

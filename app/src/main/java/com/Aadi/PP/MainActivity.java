@@ -1,30 +1,29 @@
 package com.Aadi.PP;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.support.v7.widget.Toolbar;
+import android.widget.Toolbar;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -73,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ActionBarDrawerToggle t;
     private NavigationView nv;
     private DatabaseReference mUserDatabase;
-
+    private Toolbar toolbar;
 
     ListView listView;
     List<cards> rowItems;
@@ -94,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             dl.addDrawerListener(t);
             t.syncState();
             Toolbar toolbar = findViewById(R.id.toolBar);
-            setSupportActionBar(toolbar);
+            setActionBar(toolbar);
             ActionBar actionbar = getSupportActionBar();
             actionbar.setDisplayHomeAsUpEnabled(true);
             actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
@@ -115,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         checkUserSex();
         checkFirstOpen();
 
-        final TextView emptyView = findViewById(R.id.empty_view);
+        final LinearLayout emptyView = findViewById(R.id.empty_view);
 
 
         rowItems = new ArrayList<cards>();
@@ -228,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     View header = nv.getHeaderView(0);
                     ImageView img = header.findViewById(R.id.img);
-                    Glide.clear(img);
+
                     if(map.get("profileImageUrl")!=null){
                         profileImageUrl = map.get("profileImageUrl").toString();
                         switch(profileImageUrl){
