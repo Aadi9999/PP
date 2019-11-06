@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
+import android.preference.Preference;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -40,8 +41,11 @@ import com.Aadi.PP.Pager.PagerActivity;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -52,6 +56,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.onesignal.OneSignal;
+import com.webianks.easy_feedback.EasyFeedback;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -59,7 +64,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import bolts.Task;
 import es.dmoral.toasty.Toasty;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -123,14 +127,28 @@ public class SettingsFragment extends Fragment {
             }
         });
 
-        final TextView mDelete = rootView.findViewById(R.id.Delete);
 
-        mDelete.setOnClickListener(new View.OnClickListener() {
+
+        final TextView mFeedback = rootView.findViewById(R.id.Feedback);
+
+        mFeedback.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+
+                    new EasyFeedback.Builder(getActivity())
+                            .withEmail("coolaadi999@gmail.com")
+                            .withSystemInfo()
+                            .build()
+                            .start();
 
 
             }
+
+
         });
+
+
+
+
 
 
 
@@ -140,8 +158,6 @@ public class SettingsFragment extends Fragment {
         mName = rootView.findViewById(R.id.name);
 
         Notif = rootView.findViewById(R.id.notif);
-        setNotifSwitch();
-
 
         SharedPreferences sharedPrefs = getActivity().getSharedPreferences("Notif", MODE_PRIVATE);
         Notif.setChecked(sharedPrefs.getBoolean("Notif", true));
@@ -189,36 +205,6 @@ public class SettingsFragment extends Fragment {
     }
 
 
-    private void setNotifSwitch() {
-
-
-        Notif.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (Notif.isChecked()) {
-                    OneSignal.setSubscription(true);
-                    OneSignal.startInit(getActivity()).init();
-                    OneSignal.idsAvailable(new OneSignal.IdsAvailableHandler() {
-                        @Override
-                        public void idsAvailable(String userId, String registrationId) {
-                            FirebaseDatabase.getInstance().getReference().child("Users").child(FirebaseAuth.getInstance().getUid()).child("notificationKey").setValue(userId);
-                        }
-                    });
-                    OneSignal.setInFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification);
-
-                    SharedPreferences.Editor editor = getActivity().getSharedPreferences("Notif", MODE_PRIVATE).edit();
-                    editor.putBoolean("Notif", true);
-                    editor.commit();
-
-                } else {
-                    OneSignal.setSubscription(false);
-                    SharedPreferences.Editor editor = getActivity().getSharedPreferences("Notif", MODE_PRIVATE).edit();
-                    editor.putBoolean("Notif", false);
-                    editor.commit();
-                }
-            }
-        });
-    }
 
     private void getUserInfo() {
         mUserDatabase.addListenerForSingleValueEvent(new ValueEventListener() {

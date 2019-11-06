@@ -8,8 +8,6 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -19,7 +17,6 @@ import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.Aadi.PP.BuildConfig;
-import com.Aadi.PP.ChooseLoginRegistrationActivity;
 import com.Aadi.PP.PhoneoneActivity;
 import com.Aadi.PP.R;
 
@@ -35,13 +32,13 @@ public class SliderActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setTheme(R.style.AppTheme);
         setContentView(R.layout.activity_slider);
 
         // find view id
         initView();
 
-        //checkFirstRun();
+        checkFirstRun();
 
         
         // adding bottom dots
@@ -73,7 +70,7 @@ public class SliderActivity extends AppCompatActivity {
         // Check for first run or upgrade
         if (currentVersionCode == savedVersionCode) {
 
-            Intent intent = new Intent(SliderActivity.this, ChooseLoginRegistrationActivity.class);
+            Intent intent = new Intent(SliderActivity.this, PhoneoneActivity.class);
             startActivity(intent);
             finish();
             return;
@@ -181,7 +178,7 @@ public class SliderActivity extends AppCompatActivity {
     }
 
     private void launchHomeScreen() {
-        startActivity(new Intent(this, ChooseLoginRegistrationActivity.class));
+        startActivity(new Intent(this, PhoneoneActivity.class));
         finish();
     }
 

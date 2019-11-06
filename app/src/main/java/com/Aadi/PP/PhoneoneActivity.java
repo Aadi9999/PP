@@ -40,12 +40,11 @@ public class PhoneoneActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("PREFERENCENAME", MODE_PRIVATE);
         Intent intent = null;
         if (prefs.getBoolean("isLoginKey", false)){ //user logged in before
-            intent = new Intent(PhoneoneActivity.this, mActivity.class);
+            intent = new Intent(PhoneoneActivity.this, BetweenActivity.class);
             startActivity(intent);
             finish();
-        } else {
-
         }
+
 
         findViewById(R.id.buttonContinue).setOnClickListener(new View.OnClickListener() {
             @Override

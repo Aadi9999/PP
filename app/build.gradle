@@ -61,6 +61,9 @@ dependencies {
     })
 
 
+    implementation 'com.google.maps:google-maps-services:0.1.20'
+
+
     implementation 'com.firebaseui:firebase-ui-auth:4.3.1'
     implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
@@ -75,6 +78,7 @@ dependencies {
 
     implementation 'com.onesignal:OneSignal:3.11.3'
 
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-building-v8:0.6.0'
 
     implementation 'com.github.aabhasr1:OtpView:1.0.6'
 
@@ -119,6 +123,8 @@ dependencies {
 
     implementation 'com.github.bumptech.glide:glide:4.9.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
+
+    implementation 'com.google.maps.android:android-maps-utils:0.5'
 
     implementation 'com.lorentzos.swipecards:library:1.0.9'
     implementation 'com.airbnb.android:lottie:3.0.7'

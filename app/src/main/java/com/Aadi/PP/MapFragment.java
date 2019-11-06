@@ -6,6 +6,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -18,7 +19,11 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.provider.Settings;
 import android.renderscript.Sampler;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,13 +40,21 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.Aadi.PP.Matches.MatchesFragment;
+import com.Aadi.PP.Matches.MatchesObject;
+import com.Aadi.PP.Pager.CustomAnimationsUtils;
+import com.bumptech.glide.Glide;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 
 import androidx.annotation.NonNull;
@@ -76,30 +89,37 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.maps.DirectionsApi;
+import com.google.maps.android.PolyUtil;
+import com.google.maps.errors.ApiException;
+import com.google.maps.model.DirectionsResult;
+import com.google.maps.model.DirectionsRoute;
+import com.google.maps.model.TravelMode;
+import com.gun0912.tedpermission.PermissionListener;
+import com.gun0912.tedpermission.TedPermission;
+import com.mapbox.mapboxsdk.plugins.building.BuildingPlugin;
 import com.shashank.sony.fancydialoglib.Animation;
 import com.shashank.sony.fancydialoglib.FancyAlertDialog;
 import com.shashank.sony.fancydialoglib.FancyAlertDialogListener;
 import com.shashank.sony.fancydialoglib.Icon;
 
+import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 import es.dmoral.toasty.Toasty;
+import com.google.maps.GeoApiContext;
 import im.delight.android.location.SimpleLocation;
-import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 
-import static android.app.Activity.RESULT_OK;
-import static android.content.Context.MODE_PRIVATE;
-import static com.firebase.ui.auth.AuthUI.getApplicationContext;
 
 
 
@@ -109,10 +129,11 @@ public class MapFragment extends Fragment {
 
     private SharedPreferences sharePrefObje;
     private GoogleMap googleMap;
-    private String longitude2, latitude2, latitude2User, longitude2User, uid, name, currentUId, text, profileImageUrl;
+    private String latitude2User, longitude2User, uid, name, currentUId, CurrentUID, latitude_Display, longitude_Display, sport, userID, getUserID;
     private Double lat2, lat2User;
     private Double long2, long2User;
     private DatabaseReference usersDb;
+    private TextView changeName, changeSport;
     private Dialog myDialog;
     private Marker marker, marker2;
     private FrameLayout frame_layout;
@@ -120,15 +141,26 @@ public class MapFragment extends Fragment {
     private ActionBarDrawerToggle t;
     private SimpleLocation location;
     private Button btnFollow;
+
     private TextView mName;
+    private DatabaseReference userDb;
     private FusedLocationProviderClient mFusedLocationClient;
     private NavigationView nv;
+    private LinearLayout mInfo;
     private FirebaseAuth.AuthStateListener firebaseAuthStateListener;
     private HashMap<Marker, Integer> mHashMap = new HashMap<Marker, Integer>();
+    private LatLng currentLatLng;
+    private LatLng latlng;
+    private Bitmap smallMarker;
+    private String originString;
+
     Location userLocation;
     public static final int LOCATION_PERMISSION_REQUEST_CODE = 858;
     private static final int REQUEST_PLACE_PICKER = 1001;
+    private FusedLocationProviderClient mFusedLocationProviderClient;
+    private List<MatchesObject> matchesList;
 
+    private static final int overview = 0;
 
     public MapFragment() {
         // Required empty public constructor
@@ -143,6 +175,28 @@ public class MapFragment extends Fragment {
 
     }
 
+    private DirectionsResult getDirectionsDetails(String origin,String destination,TravelMode mode) {
+        DateTime now = new DateTime();
+        try {
+            return DirectionsApi.newRequest(getGeoContext())
+                    .mode(mode)
+                    .origin(origin)
+                    .destination(destination)
+                    .departureTime(now)
+                    .await();
+        } catch (ApiException e) {
+            e.printStackTrace();
+            return null;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -152,13 +206,22 @@ public class MapFragment extends Fragment {
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
 
-        usersDb = FirebaseDatabase.getInstance().getReference().child("Users");
         currentUId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         frame_layout = rootView.findViewById(R.id.frame_layout);
+
+        changeName = rootView.findViewById(R.id.nameInfoMap);
+        changeSport = rootView.findViewById(R.id.sportInfoMap);
+
         rootll = rootView.findViewById(R.id.rootll);
+        mInfo = rootView.findViewById(R.id.infoMap);
 
+        mFusedLocationProviderClient = LocationServices
+                .getFusedLocationProviderClient(getActivity());
 
+        usersDb = FirebaseDatabase.getInstance().getReference().child("Users");
+
+        userDb = FirebaseDatabase.getInstance().getReference().child("Users").child(currentUId);
 
         rootView.post(new Runnable() {
             @Override
@@ -174,13 +237,590 @@ public class MapFragment extends Fragment {
             @Override
             public void onMapReady(GoogleMap googleMap) {
 
-                googleMap.setMyLocationEnabled(true);
-                googleMap.getUiSettings().setZoomControlsEnabled(true);
-                googleMap.getUiSettings().setCompassEnabled(true);
-                googleMap.getUiSettings().setIndoorLevelPickerEnabled(true);
-                googleMap.setBuildingsEnabled(true);
-                googleMap.setIndoorEnabled(true);
-                googleMap.setMaxZoomPreference(20);
+                if (googleMap == null) {
+                    return;
+                }
+                try {
+
+
+
+                    googleMap.setMyLocationEnabled(true);
+                    googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+                    googleMap.getUiSettings().setZoomControlsEnabled(true);
+                    googleMap.getUiSettings().setCompassEnabled(true);
+                    googleMap.getUiSettings().setIndoorLevelPickerEnabled(true);
+                    googleMap.setBuildingsEnabled(true);
+                    googleMap.setMaxZoomPreference(20);
+                    getUserInfo();
+
+                    Task<Location> locationResult = mFusedLocationProviderClient.getLastLocation();
+                    locationResult.addOnCompleteListener(new OnCompleteListener<Location>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Location> task) {
+                            if (task.isSuccessful()) {
+
+                                Location location = task.getResult();
+                                currentLatLng = new LatLng(location.getLatitude(),
+                                location.getLongitude());
+
+                                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 16F));
+
+                            }
+                        }
+                    });
+
+
+
+                } catch (SecurityException e) {
+                    Log.e("Exception: %s", e.getMessage());
+                }
+
+
+                DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
+                DatabaseReference usersRef = rootRef
+                        .child("Users");
+
+
+
+                ValueEventListener eventListener = new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                            for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                                location = new SimpleLocation(getActivity());
+
+
+                                latitude_Display = ds
+                                        .child("location")
+                                        .child("latitude")
+                                        .getValue().toString();
+
+                                longitude_Display = ds
+                                        .child("location")
+                                        .child("longitude")
+                                        .getValue().toString();
+
+                                name = ds
+                                        .child("name")
+                                        .getValue().toString();
+
+
+
+
+                                userID = ds
+                                        .child("userID")
+                                        .getValue().toString();
+
+                                sport = ds
+                                        .child("sports")
+                                        .getValue().toString();
+
+
+
+
+                                originString = latitude_Display + "," + longitude_Display;
+
+
+
+
+                                CurrentUID = currentUId;
+                                if (!userID.equals(CurrentUID)) {
+                                    if (sport.equals("Badminton")) {
+
+                                        int height = 100;
+                                        int width = 100;
+                                        BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.badminton);
+                                        Bitmap b = bitmapdraw.getBitmap();
+                                        Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+
+
+                                        String latLng = latitude_Display;
+                                        String latLng1 = longitude_Display;
+
+
+                                        double latitude = Double.parseDouble(latLng);
+                                        double longitude = Double.parseDouble(latLng1);
+
+
+                                        // map.clear();
+                                        LatLng currentLocation = new LatLng(latitude, longitude);
+                                        MarkerOptions markerOptions = new MarkerOptions();
+                                        markerOptions.position(currentLocation);
+
+                                        googleMap.addMarker(new MarkerOptions()
+                                                .position(new LatLng(latitude, longitude))
+                                                .snippet(userID)
+                                                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
+                                                .title(name));
+
+
+                                    }
+
+                                    if (sport.equals("Basketball")) {
+
+                                        int height = 100;
+                                        int width = 100;
+                                        BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.basketball);
+                                        Bitmap b = bitmapdraw.getBitmap();
+                                        Bitmap smallMarker1 = Bitmap.createScaledBitmap(b, width, height, false);
+
+                                        String latLng = latitude_Display;
+                                        String latLng1 = longitude_Display;
+
+
+                                        double latitude = Double.parseDouble(latLng);
+                                        double longitude = Double.parseDouble(latLng1);
+
+
+                                        // map.clear();
+                                        LatLng currentLocation = new LatLng(latitude, longitude);
+                                        MarkerOptions markerOptions = new MarkerOptions();
+                                        markerOptions.position(currentLocation);
+
+                                        googleMap.addMarker(new MarkerOptions()
+                                                .position(new LatLng(latitude, longitude))
+                                                .snippet(userID)
+                                                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker1))
+                                                .title(name));
+
+                                    }
+
+                                    if (sport.equals("Football")) {
+                                        int height = 100;
+                                        int width = 100;
+                                        BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.soccer);
+                                        Bitmap b = bitmapdraw.getBitmap();
+                                        Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+
+
+                                        String latLng = latitude_Display;
+                                        String latLng1 = longitude_Display;
+
+
+                                        double latitude = Double.parseDouble(latLng);
+                                        double longitude = Double.parseDouble(latLng1);
+
+
+                                        // map.clear();
+                                        LatLng currentLocation = new LatLng(latitude, longitude);
+                                        MarkerOptions markerOptions = new MarkerOptions();
+                                        markerOptions.position(currentLocation);
+
+                                        googleMap.addMarker(new MarkerOptions()
+                                                .position(new LatLng(latitude, longitude))
+                                                .snippet(userID)
+                                                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
+                                                .title(name));
+                                    }
+
+                                    if (sport.equals("Table Tennis")) {
+                                        int height = 100;
+                                        int width = 100;
+                                        BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.pingpong);
+                                        Bitmap b = bitmapdraw.getBitmap();
+                                        Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+
+
+                                        String latLng = latitude_Display;
+                                        String latLng1 = longitude_Display;
+
+
+                                        double latitude = Double.parseDouble(latLng);
+                                        double longitude = Double.parseDouble(latLng1);
+
+
+                                        // map.clear();
+                                        LatLng currentLocation = new LatLng(latitude, longitude);
+                                        MarkerOptions markerOptions = new MarkerOptions();
+                                        markerOptions.position(currentLocation);
+
+                                        googleMap.addMarker(new MarkerOptions()
+                                                .position(new LatLng(latitude, longitude))
+                                                .snippet(userID)
+                                                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
+                                                .title(name));
+                                    }
+
+                                    if (sport.equals("Exercising")) {
+                                        int height = 100;
+                                        int width = 100;
+                                        BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.gym);
+                                        Bitmap b = bitmapdraw.getBitmap();
+                                        smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+
+
+                                        String latLng = latitude_Display;
+                                        String latLng1 = longitude_Display;
+
+
+                                        double latitude = Double.parseDouble(latLng);
+                                        double longitude = Double.parseDouble(latLng1);
+
+
+                                        // map.clear();
+                                        LatLng currentLocation = new LatLng(latitude, longitude);
+                                        MarkerOptions markerOptions = new MarkerOptions();
+                                        markerOptions.position(currentLocation);
+
+                                        googleMap.addMarker(new MarkerOptions()
+                                                .position(new LatLng(latitude, longitude))
+                                                .snippet(userID)
+                                                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
+                                                .title(name));
+                                    }
+
+                                    if (sport.equals("Baseball")) {
+                                        int height = 100;
+                                        int width = 100;
+                                        BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.baseball);
+                                        Bitmap b = bitmapdraw.getBitmap();
+                                        smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+
+
+                                        String latLng = latitude_Display;
+                                        String latLng1 = longitude_Display;
+
+
+                                        double latitude = Double.parseDouble(latLng);
+                                        double longitude = Double.parseDouble(latLng1);
+
+
+                                        // map.clear();
+                                        LatLng currentLocation = new LatLng(latitude, longitude);
+                                        MarkerOptions markerOptions = new MarkerOptions();
+                                        markerOptions.position(currentLocation);
+
+                                        googleMap.addMarker(new MarkerOptions()
+                                                .position(new LatLng(latitude, longitude))
+                                                .snippet(userID)
+                                                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
+                                                .title(name));
+
+                                    }
+
+                                    if (sport.equals("Tennis")) {
+                                        int height = 100;
+                                        int width = 100;
+                                        BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.tennis);
+                                        Bitmap b = bitmapdraw.getBitmap();
+                                        Bitmap smallMarker1 = Bitmap.createScaledBitmap(b, width, height, false);
+
+                                        String latLng = latitude_Display;
+                                        String latLng1 = longitude_Display;
+
+
+                                        double latitude = Double.parseDouble(latLng);
+                                        double longitude = Double.parseDouble(latLng1);
+
+
+                                        // map.clear();
+                                        LatLng currentLocation = new LatLng(latitude, longitude);
+                                        MarkerOptions markerOptions = new MarkerOptions();
+                                        markerOptions.position(currentLocation);
+
+                                        googleMap.addMarker(new MarkerOptions()
+                                                .position(new LatLng(latitude, longitude))
+                                                .snippet(userID)
+                                                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker1))
+                                                .title(name));
+                                    }
+
+                                    if (sport.equals("Archery")) {
+                                        int height = 100;
+                                        int width = 100;
+                                        BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.archery);
+                                        Bitmap b = bitmapdraw.getBitmap();
+                                        smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+
+                                        String latLng = latitude_Display;
+                                        String latLng1 = longitude_Display;
+
+
+                                        double latitude = Double.parseDouble(latLng);
+                                        double longitude = Double.parseDouble(latLng1);
+
+
+                                        // map.clear();
+                                        LatLng currentLocation = new LatLng(latitude, longitude);
+                                        MarkerOptions markerOptions = new MarkerOptions();
+                                        markerOptions.position(currentLocation);
+
+                                        googleMap.addMarker(new MarkerOptions()
+                                                .position(new LatLng(latitude, longitude))
+                                                .snippet(userID)
+                                                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
+                                                .title(name));
+
+                                    }
+
+                                    if (sport.equals("Snooker")) {
+                                        int height = 100;
+                                        int width = 100;
+                                        BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.eightball);
+                                        Bitmap b = bitmapdraw.getBitmap();
+                                        smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+
+
+                                        String latLng = latitude_Display;
+                                        String latLng1 = longitude_Display;
+
+
+                                        double latitude = Double.parseDouble(latLng);
+                                        double longitude = Double.parseDouble(latLng1);
+
+
+                                        // map.clear();
+                                        LatLng currentLocation = new LatLng(latitude, longitude);
+                                        MarkerOptions markerOptions = new MarkerOptions();
+                                        markerOptions.position(currentLocation);
+
+                                        googleMap.addMarker(new MarkerOptions()
+                                                .position(new LatLng(latitude, longitude))
+                                                .snippet(userID)
+                                                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
+                                                .title(name));
+                                    }
+
+                                    if (sport.equals("Cycling")) {
+                                        int height = 100;
+                                        int width = 100;
+                                        BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.cycling);
+                                        Bitmap b = bitmapdraw.getBitmap();
+                                        smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+
+
+                                        String latLng = latitude_Display;
+                                        String latLng1 = longitude_Display;
+
+
+                                        double latitude = Double.parseDouble(latLng);
+                                        double longitude = Double.parseDouble(latLng1);
+
+
+                                        // map.clear();
+                                        LatLng currentLocation = new LatLng(latitude, longitude);
+                                        MarkerOptions markerOptions = new MarkerOptions();
+                                        markerOptions.position(currentLocation);
+
+                                        googleMap.addMarker(new MarkerOptions()
+                                                .position(new LatLng(latitude, longitude))
+                                                .snippet(userID)
+                                                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
+                                                .title(name));
+                                    }
+
+                                    if (sport.equals("Golf")) {
+                                        int height = 100;
+                                        int width = 100;
+                                        BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.golf);
+                                        Bitmap b = bitmapdraw.getBitmap();
+                                        smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+
+
+                                        String latLng = latitude_Display;
+                                        String latLng1 = longitude_Display;
+
+
+                                        double latitude = Double.parseDouble(latLng);
+                                        double longitude = Double.parseDouble(latLng1);
+
+
+                                        // map.clear();
+                                        LatLng currentLocation = new LatLng(latitude, longitude);
+                                        MarkerOptions markerOptions = new MarkerOptions();
+                                        markerOptions.position(currentLocation);
+
+                                        googleMap.addMarker(new MarkerOptions()
+                                                .position(new LatLng(latitude, longitude))
+                                                .snippet(userID)
+                                                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
+                                                .title(name));
+                                    }
+
+                                    if (sport.equals("Rugby")) {
+                                        int height = 100;
+                                        int width = 100;
+                                        BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.rugby);
+                                        Bitmap b = bitmapdraw.getBitmap();
+                                        smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+
+
+                                        String latLng = latitude_Display;
+                                        String latLng1 = longitude_Display;
+
+
+                                        double latitude = Double.parseDouble(latLng);
+                                        double longitude = Double.parseDouble(latLng1);
+
+
+                                        // map.clear();
+                                        LatLng currentLocation = new LatLng(latitude, longitude);
+                                        MarkerOptions markerOptions = new MarkerOptions();
+                                        markerOptions.position(currentLocation);
+
+                                        googleMap.addMarker(new MarkerOptions()
+                                                .position(new LatLng(latitude, longitude))
+                                                .snippet(userID)
+                                                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
+                                                .title(name));
+
+                                    }
+
+                                    if (sport.equals("Running")) {
+                                        int height = 100;
+                                        int width = 100;
+                                        BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.shoe);
+                                        Bitmap b = bitmapdraw.getBitmap();
+                                        Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+
+
+                                        String latLng = latitude_Display;
+                                        String latLng1 = longitude_Display;
+
+
+                                        double latitude = Double.parseDouble(latLng);
+                                        double longitude = Double.parseDouble(latLng1);
+
+
+                                        // map.clear();
+                                        LatLng currentLocation = new LatLng(latitude, longitude);
+                                        MarkerOptions markerOptions = new MarkerOptions();
+                                        markerOptions.position(currentLocation);
+
+                                        googleMap.addMarker(new MarkerOptions()
+                                                .position(new LatLng(latitude, longitude))
+                                                .snippet(userID)
+                                                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
+                                                .title(name));
+                                    }
+
+                                    if (sport.equals("American Football")) {
+                                        int height = 100;
+                                        int width = 100;
+                                        BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.americanfootball);
+                                        Bitmap b = bitmapdraw.getBitmap();
+                                        smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+
+
+                                        String latLng = latitude_Display;
+                                        String latLng1 = longitude_Display;
+
+
+                                        double latitude = Double.parseDouble(latLng);
+                                        double longitude = Double.parseDouble(latLng1);
+
+
+                                        // map.clear();
+                                        LatLng currentLocation = new LatLng(latitude, longitude);
+                                        MarkerOptions markerOptions = new MarkerOptions();
+                                        markerOptions.position(currentLocation);
+
+                                        googleMap.addMarker(new MarkerOptions()
+                                                .position(new LatLng(latitude, longitude))
+                                                .snippet(userID)
+                                                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
+                                                .title(name));
+                                    }
+
+                                    if (sport.equals("Volleyball")) {
+                                        int height = 100;
+                                        int width = 100;
+                                        BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.volleyball);
+                                        Bitmap b = bitmapdraw.getBitmap();
+                                        smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+
+
+                                        String latLng = latitude_Display;
+                                        String latLng1 = longitude_Display;
+
+
+                                        double latitude = Double.parseDouble(latLng);
+                                        double longitude = Double.parseDouble(latLng1);
+
+
+                                        // map.clear();
+                                        LatLng currentLocation = new LatLng(latitude, longitude);
+                                        MarkerOptions markerOptions = new MarkerOptions();
+                                        markerOptions.position(currentLocation);
+
+                                        googleMap.addMarker(new MarkerOptions()
+                                                .position(new LatLng(latitude, longitude))
+                                                .snippet(userID)
+                                                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
+                                                .title(name));
+
+                                    }
+
+                                    if (sport.equals("Cricket")) {
+                                        int height = 100;
+                                        int width = 100;
+                                        BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.cricket);
+                                        Bitmap b = bitmapdraw.getBitmap();
+                                        smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+
+
+                                        String latLng = latitude_Display;
+                                        String latLng1 = longitude_Display;
+
+
+                                        double latitude = Double.parseDouble(latLng);
+                                        double longitude = Double.parseDouble(latLng1);
+
+
+                                        // map.clear();
+                                        LatLng currentLocation = new LatLng(latitude, longitude);
+                                        MarkerOptions markerOptions = new MarkerOptions();
+                                        markerOptions.position(currentLocation);
+
+                                        googleMap.addMarker(new MarkerOptions()
+                                                .position(new LatLng(latitude, longitude))
+                                                .snippet(userID)
+                                                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
+                                                .title(name));
+                                    }
+
+                                    if (sport.equals("default")) {
+                                        int height = 100;
+                                        int width = 100;
+                                        BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.footballer);
+                                        Bitmap b = bitmapdraw.getBitmap();
+                                        smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+
+
+                                        String latLng = latitude_Display;
+                                        String latLng1 = longitude_Display;
+
+
+                                        double latitude = Double.parseDouble(latLng);
+                                        double longitude = Double.parseDouble(latLng1);
+
+
+                                        // map.clear();
+                                        LatLng currentLocation = new LatLng(latitude, longitude);
+                                        MarkerOptions markerOptions = new MarkerOptions();
+                                        markerOptions.position(currentLocation);
+
+                                        googleMap.addMarker(new MarkerOptions()
+                                                .position(new LatLng(latitude, longitude))
+                                                .snippet(userID)
+                                                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
+                                                .title(name));
+                                    }
+
+
+                                }
+
+
+
+                            }
+                        }
+
+                    
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {}
+                };
+                usersRef.addListenerForSingleValueEvent(eventListener);
+
 
 
                 try {
@@ -197,418 +837,140 @@ public class MapFragment extends Fragment {
                     Log.e("Map", "Can't find style.", e);
                 }
 
-                DatabaseReference userDb = FirebaseDatabase.getInstance().getReference().child("Users").child(currentUId);
-                userDb.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if(dataSnapshot.exists() && dataSnapshot.getChildrenCount()>0){
-                            Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
-                            if(map.get("location")!=null){
-                                location = new SimpleLocation(getActivity());
-
-                                longitude2User = dataSnapshot.child("location").child("longitude").getValue().toString();
-                                latitude2User = dataSnapshot.child("location").child("latitude").getValue().toString();
-                                long2User = Double.valueOf(longitude2User);
-                                lat2User = Double.valueOf(latitude2User);
-
-                                LatLng latlngUser = new LatLng(lat2User, long2User);
-
-
-                                CameraPosition cameraPosition = new CameraPosition.Builder()
-                                        .target((latlngUser))
-                                        .zoom(12)
-                                        .build();
-
-
-                                googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
-                            }
-
-
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
-
-
 
                 usersDb.addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                        if (dataSnapshot.child("location").getValue() != null) {
-                            location = new SimpleLocation(getActivity());
 
-                            longitude2 = dataSnapshot.child("location").child("longitude").getValue().toString();
-                            latitude2 = dataSnapshot.child("location").child("latitude").getValue().toString();
-                            long2 = Double.valueOf(longitude2);
-                            lat2 = Double.valueOf(latitude2);
 
-                            LatLng latlng = new LatLng(lat2, long2);
+                                    usersDb.addChildEventListener(new ChildEventListener() {
+                                        @Override
+                                        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                                            if (dataSnapshot.child("location").getValue() != null) {
+                                                if (userDb != null) {
 
 
-                           if (currentUId != dataSnapshot.getKey()) {
+                                                        googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                                                            @Override
+                                                            public View getInfoWindow(Marker arg0) {
+                                                                return null;
+                                                            }
 
-                            if (dataSnapshot.child("sports").getValue() != null) {
-                                name = dataSnapshot.child("name").getValue().toString();
-                                uid = dataSnapshot.getKey();
+                                                            @Override
+                                                            public View getInfoContents(Marker marker) {
+                                                                View myContentView = getLayoutInflater().inflate(
+                                                                        R.layout.customer_marker, null);
+                                                                TextView tvTitle = ((TextView) myContentView
+                                                                        .findViewById(R.id.title));
+                                                                TextView tvSnippet = ((TextView) myContentView
+                                                                        .findViewById(R.id.snippet));
+                                                                tvSnippet.setText(marker.getTitle());
+                                                                return myContentView;
+                                                            }
+                                                        });
 
 
-                                        if (dataSnapshot.child("sports").getValue().toString() == "Badminton") {
+                                                        googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                                                            @Override
+                                                            public void onInfoWindowClick(Marker marker) {
 
-                                            int height = 100;
-                                            int width = 100;
-                                            BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.badminton);
-                                            Bitmap b = bitmapdraw.getBitmap();
-                                            Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+                                                                getUserID = marker.getSnippet();
 
 
-                                            marker = googleMap.addMarker(new MarkerOptions().position(latlng)
-                                                    .title(name)
-                                                    .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
-                                                    .snippet(uid));
+                                                                marker.hideInfoWindow();
 
-                                        }
+                                                                myDialog.setContentView(R.layout.activity_popup);
+                                                                //mName = myDialog.findViewById(R.id.name);
+                                                                TextView Headover = myDialog.findViewById(R.id.headover);
+                                                                //mName.setText(marker.getTitle());
+                                                                btnFollow = myDialog.findViewById(R.id.btnfollow);
 
-                                        if (dataSnapshot.child("sports").getValue().toString().equals("Basketball")) {
 
-                                            int height = 100;
-                                            int width = 100;
-                                            BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.basketball);
-                                            Bitmap b = bitmapdraw.getBitmap();
-                                            Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
 
+                                                                DatabaseReference currentUserConnectionsDb = usersDb.child(currentUId).child("connections").child("yeps").child(getUserID);
+                                                                currentUserConnectionsDb.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                    @Override
+                                                                    public void onDataChange(DataSnapshot dataSnapshot) {
 
-                                            marker = googleMap.addMarker(new MarkerOptions().position(latlng)
-                                                    .title(name)
-                                                    .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
-                                                    .snippet(uid));
+                                                                            if (dataSnapshot.exists()) {
 
-                                        }
+                                                                                btnFollow.setText("Connected");
+                                                                                Headover.setText("Head over to Connects page to chat now!");
+                                                                                btnFollow.setClickable(false);
 
-                                        if (dataSnapshot.child("sports").getValue().toString().equals("Football")) {
-                                            int height = 100;
-                                            int width = 100;
-                                            BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.soccer);
-                                            Bitmap b = bitmapdraw.getBitmap();
-                                            Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+                                                                            } else {
 
+                                                                                btnFollow.setText("Connect");
+                                                                                btnFollow.setText("Connect");
+                                                                                Headover.setText("Click button to Connect");
+                                                                                btnFollow.setOnClickListener(new View.OnClickListener() {
+                                                                                    @Override
+                                                                                    public void onClick(View v) {
 
-                                            marker = googleMap.addMarker(new MarkerOptions().position(latlng)
-                                                    .title(name)
-                                                    .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
-                                                    .snippet(uid));
+                                                                                        Headover.setText("Head over to Connects page to chat now.");
+                                                                                        btnFollow.setText("Connected");
+                                                                                        usersDb.child(currentUId).child("connections").child("yeps").child(marker.getSnippet()).setValue(true);
+                                                                                        isConnectionMatch(marker.getSnippet());
+                                                                                        Toasty.success(getActivity(), "Connect!", Toast.LENGTH_SHORT).show();
+                                                                                    }
+                                                                                });
 
 
-                                        }
 
-                                        if (dataSnapshot.child("sports").getValue().toString().equals("Table Tennis")) {
-                                            int height = 100;
-                                            int width = 100;
-                                            BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.pingpong);
-                                            Bitmap b = bitmapdraw.getBitmap();
-                                            Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+                                                                        }
 
 
-                                            marker = googleMap.addMarker(new MarkerOptions().position(latlng)
-                                                    .title(name)
-                                                    .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
-                                                    .snippet(uid));
 
 
-                                        }
+                                                                    }
 
-                                        if (dataSnapshot.child("sports").getValue().toString().equals("Exercising")) {
-                                            int height = 100;
-                                            int width = 100;
-                                            BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.gym);
-                                            Bitmap b = bitmapdraw.getBitmap();
-                                            Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+                                                                    @Override
+                                                                    public void onCancelled(DatabaseError databaseError) {
+                                                                    }
+                                                                });
 
 
-                                            marker = googleMap.addMarker(new MarkerOptions().position(latlng)
-                                                    .title(name)
-                                                    .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
-                                                    .snippet(uid));
+                                                                myDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                                                                myDialog.show();
+                                                            }
+                                                        });
 
 
-                                        }
 
-                                        if (dataSnapshot.child("sports").getValue().toString().equals("Baseball")) {
-                                            int height = 100;
-                                            int width = 100;
-                                            BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.baseball);
-                                            Bitmap b = bitmapdraw.getBitmap();
-                                            Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
-
-
-                                            marker = googleMap.addMarker(new MarkerOptions().position(latlng)
-                                                    .title(name)
-                                                    .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
-                                                    .snippet(uid));
-
-
-                                        }
-
-                                        if (dataSnapshot.child("sports").getValue().toString().equals("Tennis")) {
-                                            int height = 100;
-                                            int width = 100;
-                                            BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.tennis);
-                                            Bitmap b = bitmapdraw.getBitmap();
-                                            Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
-
-
-                                            marker = googleMap.addMarker(new MarkerOptions().position(latlng)
-                                                    .title(name)
-                                                    .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
-                                                    .snippet(uid));
-
-                                        }
-
-                                        if (dataSnapshot.child("sports").getValue().toString().equals("Archery")) {
-                                            int height = 100;
-                                            int width = 100;
-                                            BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.archery);
-                                            Bitmap b = bitmapdraw.getBitmap();
-                                            Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
-
-
-                                            marker = googleMap.addMarker(new MarkerOptions().position(latlng)
-                                                    .title(name)
-                                                    .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
-                                                    .snippet(uid));
-
-
-                                        }
-
-                                        if (dataSnapshot.child("sports").getValue().toString().equals("Snooker")) {
-                                            int height = 100;
-                                            int width = 100;
-                                            BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.eightball);
-                                            Bitmap b = bitmapdraw.getBitmap();
-                                            Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
-
-
-                                            marker = googleMap.addMarker(new MarkerOptions().position(latlng)
-                                                    .title(name)
-                                                    .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
-                                                    .snippet(uid));
-
-
-                                        }
-
-                                        if (dataSnapshot.child("sports").getValue().toString().equals("Cycling")) {
-                                            int height = 100;
-                                            int width = 100;
-                                            BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.cycling);
-                                            Bitmap b = bitmapdraw.getBitmap();
-                                            Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
-
-
-                                            marker = googleMap.addMarker(new MarkerOptions().position(latlng)
-                                                    .title(name)
-                                                    .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
-                                                    .snippet(uid));
-
-
-                                        }
-
-                                        if (dataSnapshot.child("sports").getValue().toString().equals("Golf")) {
-                                            int height = 100;
-                                            int width = 100;
-                                            BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.golf);
-                                            Bitmap b = bitmapdraw.getBitmap();
-                                            Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
-
-                                            marker = googleMap.addMarker(new MarkerOptions().position(latlng)
-                                                    .title(name)
-                                                    .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
-                                                    .snippet(uid));
-
-                                        }
-
-                                        if (dataSnapshot.child("sports").getValue().toString().equals("Rugby")) {
-                                            int height = 100;
-                                            int width = 100;
-                                            BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.rugby);
-                                            Bitmap b = bitmapdraw.getBitmap();
-                                            Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
-
-
-                                            marker = googleMap.addMarker(new MarkerOptions().position(latlng)
-                                                    .title(name)
-                                                    .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
-                                                    .snippet(uid));
-
-                                        }
-
-                                        if (dataSnapshot.child("sports").getValue().toString().equals("Running")) {
-                                            int height = 100;
-                                            int width = 100;
-                                            BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.shoe);
-                                            Bitmap b = bitmapdraw.getBitmap();
-                                            Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
-
-
-                                            marker = googleMap.addMarker(new MarkerOptions().position(latlng)
-                                                    .title(name)
-                                                    .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
-                                                    .snippet(uid));
-                                        }
-
-                                        if (dataSnapshot.child("sports").getValue().toString().equals("American Football")) {
-                                            int height = 100;
-                                            int width = 100;
-                                            BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.americanfootball);
-                                            Bitmap b = bitmapdraw.getBitmap();
-                                            Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
-
-
-                                            marker = googleMap.addMarker(new MarkerOptions().position(latlng)
-                                                    .title(name)
-                                                    .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
-                                                    .snippet(uid));
-
-                                        }
-
-                                        if (dataSnapshot.child("sports").getValue().toString().equals("Volleyball")) {
-                                            int height = 100;
-                                            int width = 100;
-                                            BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.volleyball);
-                                            Bitmap b = bitmapdraw.getBitmap();
-                                            Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
-
-
-                                            marker = googleMap.addMarker(new MarkerOptions().position(latlng)
-                                                    .title(name)
-                                                    .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
-                                                    .snippet(uid));
-
-
-                                        }
-
-                                        if (dataSnapshot.child("sports").getValue().toString().equals("Cricket")) {
-                                            int height = 100;
-                                            int width = 100;
-                                            BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.cricket);
-                                            Bitmap b = bitmapdraw.getBitmap();
-                                            Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
-
-
-                                            marker = googleMap.addMarker(new MarkerOptions().position(latlng)
-                                                    .title(name)
-                                                    .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
-                                                    .snippet(uid));
-
-                                        }
-
-                                        if (dataSnapshot.child("sports").getValue().toString().equals("default")) {
-                                            int height = 100;
-                                            int width = 100;
-                                            BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.footballer);
-                                            Bitmap b = bitmapdraw.getBitmap();
-                                            Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
-
-
-                                            marker = googleMap.addMarker(new MarkerOptions().position(latlng)
-                                                    .title(name)
-                                                    .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
-                                                    .snippet(uid));
-
-                                        }
-
-
-                                    }
-
-                                    googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
-                                    @Override
-                                    public View getInfoWindow(Marker arg0) {
-                                        return null;
-                                    }
-                                    @Override
-                                    public View getInfoContents(Marker marker) {
-                                        View myContentView = getLayoutInflater().inflate(
-                                                R.layout.customer_marker, null);
-                                        TextView tvTitle = ((TextView) myContentView
-                                                .findViewById(R.id.title));
-                                        TextView tvSnippet = ((TextView) myContentView
-                                                .findViewById(R.id.snippet));
-                                        tvSnippet.setText(marker.getTitle());
-                                        return myContentView;
-                                    }
-                                });
-
-
-
-
-                                googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-                                    @Override
-                                    public void onInfoWindowClick(Marker marker) {
-                                        marker.hideInfoWindow();
-
-                                        myDialog.setContentView(R.layout.activity_popup);
-                                        //mName = myDialog.findViewById(R.id.name);
-                                        TextView Headover = myDialog.findViewById(R.id.headover);
-                                        //mName.setText(marker.getTitle());
-                                        btnFollow = myDialog.findViewById(R.id.btnfollow);
-
-
-                                        String ButtonText = btnFollow.getText().toString();
-
-                                        String userId = marker.getSnippet();
-                                        DatabaseReference currentUserConnectionsDb = usersDb.child(currentUId).child("connections").child("yeps").child(userId);
-                                        currentUserConnectionsDb.addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                if (dataSnapshot.exists()) {
-
-                                                    btnFollow.setText("Connected");
-                                                    Headover.setText("Head over to Connects page to chat now!");
-                                                    btnFollow.setClickable(false);
-
-                                                }
-                                                else {
-
-                                                    btnFollow.setText("Connect");
-                                                    btnFollow.setText("Connect");
-                                                    Headover.setText("Click button to Connect");
-                                                    btnFollow.setOnClickListener(new View.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(View v) {
-
-                                                            Headover.setText("Head over to Connects page to chat now!");
-                                                            btnFollow.setText("Connected!!!");
-                                                            usersDb.child(currentUId).child("connections").child("yeps").child(marker.getSnippet()).setValue(true);
-                                                            isConnectionMatch(marker.getSnippet());
-                                                            Toasty.success(getActivity(), "Connect!", Toast.LENGTH_SHORT).show();
-                                                        }
-                                                    });
 
                                                 }
 
+
                                             }
+                                        }
 
-                                            @Override
-                                            public void onCancelled(DatabaseError databaseError) {
-                                            }
-                                        });
+                                        @Override
+                                        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                                        }
+
+                                        @Override
+                                        public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                                        }
+
+                                        @Override
+                                        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
 
 
-                                        myDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                                        myDialog.show();
-                                    }
-                                });
 
 
-                            }
 
 
                         }
-                    }
 
                     @Override
                     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
@@ -625,11 +987,13 @@ public class MapFragment extends Fragment {
 
                     }
 
+
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
 
                     }
                 });
+
 
             }
 
@@ -639,79 +1003,45 @@ public class MapFragment extends Fragment {
             }
 
 
+            
 
 
-    private Bitmap getBitmap(int drawableRes) {
-        Drawable drawable = getResources().getDrawable(drawableRes);
-        Canvas canvas = new Canvas();
-        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        canvas.setBitmap(bitmap);
-        drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
-        drawable.draw(canvas);
 
-        return bitmap;
+    private void animateIn() {
+        // start translationY - 2000
+        // final translationY - 0
+        // Duration - 1 sec
+        mInfo.setVisibility(View.VISIBLE);
+        CustomAnimationsUtils.animateY(mInfo, 400, 0, 1000);
     }
 
 
-
-
-
-    private void startOverlayAnimation(final GroundOverlay groundOverlay) {
-
-        AnimatorSet animatorSet = new AnimatorSet();
-
-        ValueAnimator vAnimator = ValueAnimator.ofInt(0, 100);
-        vAnimator.setRepeatCount(ValueAnimator.INFINITE);
-        vAnimator.setRepeatMode(ValueAnimator.RESTART);
-        vAnimator.setInterpolator(new LinearInterpolator());
-        vAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+    private void getUserInfo() {
+        userDb.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                final Integer val = (Integer) valueAnimator.getAnimatedValue();
-                groundOverlay.setDimensions(val);
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists() && dataSnapshot.getChildrenCount()>0){
+                    Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
+                    if(map.get("name")!=null){
+                        String name2 = map.get("name").toString();
+                        changeName.setText("Greetings, " + name2);
+
+                    }
+                    if(map.get("sports")!=null){
+                        String sport2 = map.get("sports").toString();
+                        changeSport.setText("Look around and find others who love " + sport2 + " around you!");
+                    }
+
+                    }
+                }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
 
             }
         });
 
-        ValueAnimator tAnimator = ValueAnimator.ofFloat(0, 1);
-        tAnimator.setRepeatCount(ValueAnimator.INFINITE);
-        tAnimator.setRepeatMode(ValueAnimator.RESTART);
-        tAnimator.setInterpolator(new LinearInterpolator());
-        tAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                Float val = (Float) valueAnimator.getAnimatedValue();
-                groundOverlay.setTransparency(val);
-            }
-        });
-
-        animatorSet.setDuration(3000);
-        animatorSet.playTogether(vAnimator, tAnimator);
-        animatorSet.start();
     }
-
-    private Bitmap drawableToBitmap(Drawable drawable) {
-        Bitmap bitmap = null;
-
-        if (drawable instanceof BitmapDrawable) {
-            BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
-            if (bitmapDrawable.getBitmap() != null) {
-                return bitmapDrawable.getBitmap();
-            }
-        }
-
-        if (drawable.getIntrinsicWidth() <= 0 || drawable.getIntrinsicHeight() <= 0) {
-            bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
-        } else {
-            bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        }
-
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.draw(canvas);
-        return bitmap;
-    }
-
 
 
     void startRevealAnimation() {
@@ -732,7 +1062,8 @@ public class MapFragment extends Fragment {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
+
+                animateIn();
 
             }
         });
@@ -741,40 +1072,14 @@ public class MapFragment extends Fragment {
     }
 
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        if (location != null) {
-            location.beginUpdates();
-        }
-
-        // ...
-    }
-
-    @Override
-    public void onPause() {
-        // stop location updates (saves battery)
-        if (location != null) {
-        location.endUpdates();
-        }
-        // ...
-
-        super.onPause();
-    }
-
-    private boolean checkPermission() {
-
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            //Ask for the permission
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
-            Toast.makeText(getActivity(), "Please give location permission", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-
-        return true;
+    private GeoApiContext getGeoContext() {
+        GeoApiContext geoApiContext = new GeoApiContext();
+        return geoApiContext
+                .setQueryRateLimit(3)
+                .setApiKey(getString(R.string.key))
+                .setConnectTimeout(1, TimeUnit.SECONDS)
+                .setReadTimeout(1, TimeUnit.SECONDS)
+                .setWriteTimeout(1, TimeUnit.SECONDS);
     }
 
 
@@ -786,12 +1091,11 @@ public class MapFragment extends Fragment {
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.exists()) {
 
-                            btnFollow.setText("Connected");
-
                             String key = FirebaseDatabase.getInstance().getReference().child("Chat").push().getKey();
 
                             usersDb.child(dataSnapshot.getKey()).child("connections").child("matches").child(currentUId).child("ChatId").setValue(key);
                             usersDb.child(currentUId).child("connections").child("matches").child(dataSnapshot.getKey()).child("ChatId").setValue(key);
+
                         }
                         else {
 
@@ -806,25 +1110,5 @@ public class MapFragment extends Fragment {
             }
 
 
-            public void updateUserStatus(String state) {
-                String saveCurrentDate, saveCurrentTime;
-
-                Calendar calForDate = Calendar.getInstance();
-                SimpleDateFormat currentDate = new SimpleDateFormat("MMM dd, yyyy");
-                saveCurrentDate = currentDate.format(calForDate.getTime());
-
-                Calendar calForTime = Calendar.getInstance();
-                SimpleDateFormat currentTime = new SimpleDateFormat("hh:mm a");
-                saveCurrentTime = currentTime.format(calForTime.getTime());
-
-                Map currentStateMap = new HashMap();
-                currentStateMap.put("time", saveCurrentTime);
-                currentStateMap.put("date", saveCurrentDate);
-                currentStateMap.put("type", state);
-
-
-                usersDb.child(currentUId).child("userState")
-                        .updateChildren(currentStateMap);
-            }
         }
 

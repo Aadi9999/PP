@@ -74,7 +74,6 @@
 
         <TextView
             style="@style/Parent.headerText.settingsTextIcon"
-            android:drawableLeft="@drawable/ic_languages"
             android:id="@+id/EditName"
             android:background="?android:attr/selectableItemBackground"
             android:text="Edit Name" />
@@ -82,16 +81,9 @@
         <TextView
             style="@style/Parent.headerText.settingsTextIcon"
             android:id="@+id/Pager"
-            android:drawableLeft="@drawable/ic_edit_profile"
             android:background="?android:attr/selectableItemBackground"
             android:text="Change Favorite Sport" />
 
-        <TextView
-            style="@style/Parent.headerText.settingsTextIcon"
-            android:drawableLeft="@drawable/ic_edit_password"
-            android:layout_marginTop="10dp"
-            android:background="?android:attr/selectableItemBackground"
-            android:text="Change Password" />
 
         <TextView
             style="@style/Parent.headerText.settingsMiniTitle"
@@ -106,6 +98,13 @@
             android:text="Notifications" />
 
         <TextView
+            android:id="@+id/Feedback"
+            android:background="?android:attr/selectableItemBackground"
+            style="@style/Parent.headerText.settingsTextIcon"
+            android:drawableLeft="@drawable/ic_languages"
+            android:text="Feedback" />
+
+        <TextView
             style="@style/Parent.headerText.settingsMiniTitle"
             android:text="Logout"/>
 
@@ -116,17 +115,6 @@
             android:drawableLeft="@drawable/ic_logout"
             android:text="Logout" />
 
-        <TextView
-            android:layout_marginTop="10dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:textColor="@color/colorAccent"
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"
-            android:id="@+id/Delete"
-            android:gravity="center"
-            android:background="?android:attr/selectableItemBackground"
-            android:text="DELETE ACCOUNT" />
 
 
         <TextView

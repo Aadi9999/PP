@@ -96,7 +96,7 @@ public class BetweenActivity extends AppCompatActivity {
             @Override
             public void onPermissionDenied(List<String> deniedPermissions) {
                 Toasty.error(BetweenActivity.this, "Please turn on Location permission to use SportConnect", Toast.LENGTH_SHORT).show();
-                Intent inte = new Intent(BetweenActivity.this, ChooseLoginRegistrationActivity.class);
+                Intent inte = new Intent(BetweenActivity.this, PhoneoneActivity.class);
                 mAuth.signOut();
                 startActivity(inte);
 

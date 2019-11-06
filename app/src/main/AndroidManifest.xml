@@ -27,18 +27,16 @@
             android:name=".mActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ChooseLoginRegistrationActivity"
+            android:name=".LocationActivity"
             android:screenOrientation="portrait" />
 
         <activity
             android:name=".SignupActivity"
             android:screenOrientation="portrait" />
 
+
         <activity
             android:name=".Intro.SliderActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".SplashScreen"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

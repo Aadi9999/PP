@@ -60,6 +60,7 @@ public class SignupFragment2 extends Fragment {
                     DatabaseReference currentUserDb = FirebaseDatabase.getInstance().getReference().child("Users").child(userId);
                     Map userInfo = new HashMap<>();
                     userInfo.put("name", name);
+                    userInfo.put("userID", userId);
                     currentUserDb.updateChildren(userInfo);
 
                     Fragment fragment = new SignupFragment3();
